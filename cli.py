@@ -15,6 +15,7 @@ import kubernetes.client as _kubeclient
 import kubernetes.config as _kubeconfig
 import warnings as _warnings
 import yaml
+from basicauth import encode
 
 data = {}
 decoded_data = {}
@@ -76,31 +77,33 @@ def authenticate():
 @authenticate.command()
 @click.option('--username', prompt='Username', help='User Name.')
 @click.option('--password', prompt='Password', help='User Password.', hide_input=True)
-def login(username, password):
+@click.option('--account-uuid', prompt='Account UUID', help='User Account UUID.', hide_input=True)
+def login(username, password, account_uuid):
     """Simple program that authenticate user"""
-    request = {
-        "username": "zeeazmat",
-        "password": "zee123123",
-    }
     # request = {
-    #   "username": username,
-    #   "password": password,
+    #     "username": "zeeazmat",
+    #     "password": "zee123123",
     # }
 
-    BASE_URL = 'http://52.22.248.211'
-    url = BASE_URL + '/api/token/'
+    encoded_str = encode(username, password)
+
+    header = {
+      'x-account-uuid': account_uuid,
+      'authorization': encoded_str
+    }
+
+    # BASE_URL = 'http://52.22.248.211'
+    # url = BASE_URL + '/api/token/'
     # url = 'http://127.0.0.1:8000/api/token/'
 
-    response = requests.post(url, request)
+    url = "http://localhost:5000/login"
+    response = requests.get(url, headers=header)
     if (response.status_code == 200):
         with open('config', 'w') as f:
             json.dump(response.json(), f)
-
-        print('Successfully logged in!')
+        print('Login Succeeded!')
     else:
         print('Invalid credentials!')
-
-        # print (response.json())
 
 
 @click.group()
