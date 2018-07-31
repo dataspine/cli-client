@@ -16,6 +16,10 @@ import kubernetes.config as _kubeconfig
 import warnings as _warnings
 import yaml
 from basicauth import encode
+import keyring
+from pathlib import Path
+import configparser
+
 
 data = {}
 decoded_data = {}
@@ -34,44 +38,35 @@ def valid_token():
         return False
 
 
-# def before_filter(f):
-#   if bool(data):
-#     if (valid_token() == False):
-#       print("Getting new token!")
-#       url = BASE_URL + '/api/token/refresh/'
-
-#       request = { 'refresh': data['refresh'] }
-#       response = requests.post(url, request).json()
-
-#       if 'access' in response:
-#         data['access'] = response['access']
-#         with open('config', 'w') as f:
-#           json.dump(data, f)
-#       else:
-#         print('Unable to get access token!')
-#       print('\n\n\n')
-#   else:
-#     return authenticateResponse()
-
-
-# def authenticateResponse():
-#   print("You need to login first to continue with dataspine!!!, use `dataspine login` to login")
-
-
-# def requires_auth(f):
-#   @wraps(f)
-#   def decorated(*args, **kwargs):
-#     print('I came here')
-#     if (data and data['logged_in'] != True):
-#       return authenticateResponse()
-#     return f(*args, **kwargs)
-#   return decorated
-
-
 @click.group()
 def authenticate():
     print('Enter your dataspine credentials:')
     pass
+
+
+@authenticate.command()
+def get_encoded_string():
+    home = str(Path.home())
+    filename_profiles = home + "/.dataspine/userdata"
+    config = configparser.ConfigParser()
+    config.read(filename_profiles)
+    username = config.get('default', 'username')
+    account_uuid = config.get('default', 'account-uuid')
+    password = keyring.get_password(account_uuid, username)
+    encoded_str = encode(username, password)
+
+    return encoded_str
+
+
+@authenticate.command()
+def get_account_uuid():
+    home = str(Path.home())
+    filename_profiles = home + "/.dataspine/userdata"
+    config = configparser.ConfigParser()
+    config.read(filename_profiles)
+    account_uuid = config.get('default', 'account-uuid')
+
+    return account_uuid
 
 
 @authenticate.command()
@@ -80,27 +75,35 @@ def authenticate():
 @click.option('--account-uuid', prompt='Account UUID', help='User Account UUID.', hide_input=True)
 def login(username, password, account_uuid):
     """Simple program that authenticate user"""
-    # request = {
-    #     "username": "zeeazmat",
-    #     "password": "zee123123",
-    # }
 
+    url = "http://localhost:5000/login"
     encoded_str = encode(username, password)
-
     header = {
       'x-account-uuid': account_uuid,
       'authorization': encoded_str
     }
 
-    # BASE_URL = 'http://52.22.248.211'
-    # url = BASE_URL + '/api/token/'
-    # url = 'http://127.0.0.1:8000/api/token/'
+    home = str(Path.home())
+    filename_userdata = home + "/.dataspine/userdata"
+    filename_config = home + "/.dataspine/public-key"
 
-    url = "http://localhost:5000/login"
     response = requests.get(url, headers=header)
+    public_key = json.loads(response.text)
+
+    config = configparser.ConfigParser()
+    config['default'] = {'username': username, 'account-uuid': account_uuid}
+
     if (response.status_code == 200):
-        with open('config', 'w') as f:
-            json.dump(response.json(), f)
+
+        os.makedirs(os.path.dirname(filename_config), exist_ok=True)
+        with open(filename_config, 'w') as f:
+            f.write(public_key["public_key"])
+
+        os.makedirs(os.path.dirname(filename_userdata), exist_ok=True)
+        with open(filename_userdata, "w") as configfile:
+            config.write(configfile)
+
+        keyring.set_password(service_name=account_uuid, username=username, password=password)
         print('Login Succeeded!')
     else:
         print('Invalid credentials!')
@@ -133,7 +136,7 @@ def version():
     url = URL + '/version'
     response = requests.get(url).json()
     for i in response:
-      print (i, response[i], "\n")
+      print(i, response[i], "\n")
 
 
 @main.command()
