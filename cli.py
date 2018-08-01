@@ -1,41 +1,118 @@
 #-*- coding: utf-8 -*-
 
 import os
-import jwt
 import ssl
-import time
 import json
 import click
 import requests
-import calendar
-from functools import wraps
 import subprocess as _subprocess
 from urllib.request import urlopen
 import kubernetes.client as _kubeclient
 import kubernetes.config as _kubeconfig
 import warnings as _warnings
+import os.path
 import yaml
 from basicauth import encode
 import keyring
 from pathlib import Path
 import configparser
+from Crypto.PublicKey import RSA
+from Crypto.Cipher import PKCS1_OAEP
+import base64
+from utils import API_URL_BASE
+
+######### CRYPTO UTILS #########
+
+PUBLIC_KEY_PATH = str(Path.home()) + '/.dataspine/public-key'
+KUBE_CONFIG_PATH = '/Users/nesanche/.kube/config'
 
 
-data = {}
-decoded_data = {}
+# def get_pk():
+#     dataspine_admin_url = "http://dataspine-admin.herokuapp.com/api/v1/clusters/publickey"
+#     headers = {
+#         "authorization": "Basic ZnNhbG9uaWE6ZGlub2Nsb3VkMTIz",
+#         "x-account-uuid": "c6a89b2e-14af-47dd-bd04-fdd93b5d8dad"
+#     }
+#     public_key_response = requests.get(dataspine_admin_url, headers=headers)
+#     public_key = json.loads(public_key_response.text)
+#     with open(PUBLIC_KEY_PATH, 'w') as public_key_file:
+#         public_key_file.write(public_key["public_key"])
+
+
+def check_for_pk():
+    if not os.path.isfile(PUBLIC_KEY_PATH):
+        print('Please login! Run \'dataspine login\'')
+
+
+def encrypt_message(blob, public_key):
+    rsa_key = RSA.importKey(public_key)
+    rsa_key = PKCS1_OAEP.new(rsa_key)
+
+    chunk_size = 470
+    offset = 0
+    end_loop = False
+    encrypted = ""
+    encrypted = bytes(encrypted.encode('utf-8'))
+
+    while not end_loop:
+        chunk = blob[offset:offset + chunk_size]
+
+        if len(chunk) % chunk_size != 0:
+            end_loop = True
+            chunk += " " * (chunk_size - len(chunk))
+
+        new_chunk = rsa_key.encrypt(bytes(chunk.encode('utf-8')))
+        encrypted += new_chunk
+        offset += chunk_size
+    return base64.b64encode(encrypted)
+
+
+def decrypt_blob(encrypted_blob, private_key):
+
+    rsakey = RSA.importKey(private_key)
+    rsakey = PKCS1_OAEP.new(rsakey)
+
+    encrypted_blob = base64.b64decode(encrypted_blob)
+
+    chunk_size = 512
+    offset = 0
+    decrypted = ""
+    decrypted = bytes(decrypted.encode('utf-8'))
+
+    while offset < len(encrypted_blob):
+        chunk = encrypted_blob[offset: offset + chunk_size]
+        new_chunk = rsakey.decrypt(chunk)
+        decrypted += new_chunk
+        offset += chunk_size
+
+    return decrypted
+
+
+def decrypt_message(encoded_encrypted_msg, privatekey):
+    privatekey = RSA.importKey(privatekey)
+    decoded_encrypted_msg = base64.b64decode(encoded_encrypted_msg)
+    decoded_decrypted_msg = privatekey.decrypt(decoded_encrypted_msg)
+    return decoded_decrypted_msg
+
+################################
+
+# data = {}
+# decoded_data = {}
 BASE_URL = 'http://localhost'
-# BASE_URL = 'http://52.22.248.211'
-PORT = ':5000'
-URL = BASE_URL + PORT
-secret = 'bw$u55&le#a=mm_zths96b!i@0=z7)#c9#k)4!j(q1f9+8^8y0'
-current_time = calendar.timegm(time.gmtime())
-
-
-def valid_token():
-    if ('exp' in decoded_data):
-        return (current_time < decoded_data['exp'])
-    else:
-        return False
+# # BASE_URL = 'http://52.22.248.211'
+PORT = 5000
+URL = "{}:{}".format(BASE_URL, PORT)
+# secret = 'bw$u55&le#a=mm_zths96b!i@0=z7)#c9#k)4!j(q1f9+8^8y0'
+# current_time = calendar.timegm(time.gmtime())
+#
+#
+# def valid_token():
+#     if 'exp' in decoded_data:
+#         return current_time < decoded_data['exp']
+#     else:
+#         return False
+#
+#
 
 
 @click.group()
@@ -44,7 +121,7 @@ def authenticate():
     pass
 
 
-@authenticate.command()
+# @authenticate.command()
 def get_encoded_string():
     home = str(Path.home())
     filename_profiles = home + "/.dataspine/userdata"
@@ -58,7 +135,7 @@ def get_encoded_string():
     return encoded_str
 
 
-@authenticate.command()
+# @authenticate.command()
 def get_account_uuid():
     home = str(Path.home())
     filename_profiles = home + "/.dataspine/userdata"
@@ -94,7 +171,6 @@ def login(username, password, account_uuid):
     config['default'] = {'username': username, 'account-uuid': account_uuid}
 
     if (response.status_code == 200):
-
         os.makedirs(os.path.dirname(filename_config), exist_ok=True)
         with open(filename_config, 'w') as f:
             f.write(public_key["public_key"])
@@ -114,6 +190,111 @@ def main():
     pass
 
 
+#################
+
+@click.group()
+def cluster():
+    pass
+
+main.add_command(cluster)
+
+@cluster.command()
+@click.option('--config', prompt='Kubeconfig path', help='The path to the configuration file for kubernetes')
+@click.option('--name', prompt='Cluster name', help='The name of the cluster')
+def create(config, name):
+    # config = "/Users/nesanche/.kube/config"
+    # name = "staging"
+    post_cluster_url = "http://dataspine-admin.herokuapp.com/api/v1/clusters"
+    headers = {
+        "authorization": get_encoded_string(),
+        "x-account-uuid": get_account_uuid()
+    }
+
+    body_cluster = {
+        "cluster_name": name,
+        "cluster_alias": "Staging",
+        "cluster_description": "Cluster used for staging and sandbox"
+    }
+
+    check_for_pk()
+    with open(PUBLIC_KEY_PATH, 'r') as public_key_file:
+        public_key = public_key_file.read()
+    with open(config, 'r') as kubeconfig:
+        kubeconfig_file = kubeconfig.read()
+    encrypted_config_file = encrypt_message(kubeconfig_file, public_key)
+    created = requests.post(post_cluster_url, headers=headers, json=body_cluster)
+    created_json = json.loads(created.text)
+    print(created_json)
+
+    body_put = {
+        "id_cluster": created_json["id_cluster"],
+        "config": encrypted_config_file.decode("utf-8")
+    }
+
+    dataspine_admin_url = "http://dataspine-admin.herokuapp.com/api/v1/clusters/upload_config"
+    updated = requests.put(dataspine_admin_url, headers=headers, json=body_put)
+    print(updated)
+
+    print("Cluster created and config updated")
+
+
+#################
+
+
+@main.command("upload-kube-config")
+def upload_kube_config():
+    config = "/Users/nesanche/.kube/config"
+    name = "staging"
+    post_cluster_url = "http://dataspine-admin.herokuapp.com/api/v1/clusters"
+    headers = {
+        "authorization": get_encoded_string(),
+        "x-account-uuid": get_account_uuid()
+    }
+
+    body_cluster = {
+        "cluster_name": name,
+        "cluster_alias": "Staging",
+        "cluster_description": "Cluster used for staging and sandbox"
+    }
+
+    check_for_pk()
+    with open(PUBLIC_KEY_PATH, 'r') as public_key_file:
+        public_key = public_key_file.read()
+    with open(config, 'r') as kubeconfig:
+        kubeconfig_file = kubeconfig.read()
+    encrypted_config_file = encrypt_message(kubeconfig_file, public_key)
+    created = requests.post(post_cluster_url, headers=headers, json=body_cluster)
+    created_json = json.loads(created.text)
+    print(created_json)
+
+    body_put = {
+        "id_cluster": created_json["id_cluster"],
+        "config": encrypted_config_file
+    }
+
+    dataspine_admin_url = "http://dataspine-admin.herokuapp.com/api/v1/clusters/upload_config"
+    updated = requests.post(dataspine_admin_url, headers=headers, json=body_put)
+    print(json.loads(updated.text))
+
+    print("Cluster created and config updated")
+
+    # check_for_pk()
+    # with open(PUBLIC_KEY_PATH, 'r') as public_key_file:
+    #     public_key = public_key_file.read()
+    # with open(KUBE_CONFIG_PATH, 'r') as kubeconfig:
+    #     kubeconfig_file = kubeconfig.read()
+    # em = encrypt_message(kubeconfig_file, public_key)
+    #
+    # with open('/tmp/ds_pri', 'r') as private_key_file:
+    #     privatekey = private_key_file.read()
+    #
+    # dm = decrypt_blob(em, privatekey)
+    #
+    # with open('/tmp/teta', 'w') as kc:
+    #     kc.write(dm.decode("utf-8"))
+
+
+
 # @requires_auth
 @main.command()
 def help():
@@ -124,12 +305,7 @@ def help():
         print(f)
     # if (valid_token() == True):
     #     url = URL + '/help'
-    #     response = requests.get(url).json()
-    #     for f in response['functions']:
-    #         print(f)
-
-
-# @before_filter
+    #     response = requests.gore_filter
 @main.command()
 def version():
     """Version command on main group"""
