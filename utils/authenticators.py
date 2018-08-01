@@ -1,0 +1,35 @@
+# -*- coding: utf8 -*-
+
+from basicauth import encode
+import keyring
+import configparser
+from .constants import USERDATA_PATH
+
+
+def get_header_basic_auth():
+    headers = {
+        "authorization": get_encoded_string(),
+        "x-account-uuid": get_account_uuid()
+    }
+
+    return headers
+
+
+def get_encoded_string():
+    config = configparser.ConfigParser()
+    config.read(USERDATA_PATH)
+    username = config.get('default', 'username')
+    account_uuid = config.get('default', 'account-uuid')
+    password = keyring.get_password(account_uuid, username)
+    encoded_str = encode(username, password)
+
+    return encoded_str
+
+
+def get_account_uuid():
+
+    config = configparser.ConfigParser()
+    config.read(USERDATA_PATH)
+    account_uuid = config.get('default', 'account-uuid')
+
+    return account_uuid
