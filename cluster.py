@@ -14,6 +14,7 @@ import warnings as _warnings
 import base64
 import yaml
 import subprocess as _subprocess
+from tabulate import tabulate
 
 
 @click.group()
@@ -22,73 +23,63 @@ def cluster():
     pass
 
 
+@cluster.command('list')
+def list_clusters():
+    url = '{}/clusters/list'.format(API_URL_BASE)
+    headers = get_header_basic_auth()
+    clusters = requests.get(url, headers=headers)
+    clusters = json.loads(clusters.text)
+
+    clusters_list = []
+    for cluster in clusters["items"]:
+        clusters_list.append([cluster['cluster_name'], cluster['cluster_alias']])
+    print(tabulate(clusters_list, headers=["Name", "Alias"], tablefmt='orgtbl'))
+
+
 @cluster.command()
-@click.option('--config', prompt='Kubeconfig path', help='The path to the configuration file for kubernetes')
-@click.option('--cluster-name', prompt='Cluster name', help='The name of the cluster')
-def create(config, name):
-    # post_cluster_url = "http://dataspine-admin.herokuapp.com/api/v1/clusters"
+@click.option('--config', prompt='Kubeconfig path', help='The path to the configuration file for kubernetes', type=click.Path(exists=True))
+@click.option('--name', 'name', prompt='Cluster name', help='The name of the cluster')
+@click.option('--alias', 'alias', prompt="Cluster alias", help='The alias of the cluster')
+@click.option('--description', help='The description or purpose of the cluster')
+def create(config, name, alias, description=""):
+    """Creates a cluster for the account"""
+
+    url = '{}/clusters/create'.format(API_URL_BASE)
     headers = get_header_basic_auth()
 
-    body_cluster = {
-        "cluster_name": name,
-        "cluster_alias": "Staging",
-        "cluster_description": "Cluster used for staging and sandbox"
-    }
-
-    check_for_pk()
-    with open(PUBLIC_KEY_PATH, 'r') as public_key_file:
-        public_key = public_key_file.read()
-    with open(config, 'r') as kubeconfig:
-        kubeconfig_file = kubeconfig.read()
-    encrypted_config_file = encrypt_message(kubeconfig_file, public_key)
-    created = requests.post(API_URL_BASE, headers=headers, json=body_cluster)
-    created_json = json.loads(created.text)
-    # print(created_json)
-
-    body_put = {
-        "id_cluster": created_json["id_cluster"],
-        "config": encrypted_config_file.decode("utf-8")
-    }
-
-    dataspine_admin_url = "http://dataspine-admin.herokuapp.com/api/v1/clusters/upload_config"
-    updated = requests.put(dataspine_admin_url, headers=headers, json=body_put)
-    # print(updated)
-
-    print("Cluster created and config updated")
-
-
-@cluster.command("upload-kube-config")
-@click.option('--name', prompt='Cluster name', help='The name of the cluster')
-@click.option('--alias', prompt='Cluster alias', help='The alias of the cluster')
-@click.option('--description', prompt='Cluster description', help='The description of the cluster')
-def upload_kube_config(name, alias, description):
-
-    headers = get_header_basic_auth()
     body_cluster = {
         "cluster_name": name,
         "cluster_alias": alias,
         "cluster_description": description
     }
 
+    response = requests.post(url, headers=headers, json=body_cluster)
+    response_json = json.loads(response.text)
+    if response.status_code != 201:
+        print(response_json['message'])
+        return
+
     check_for_pk()
     with open(PUBLIC_KEY_PATH, 'r') as public_key_file:
         public_key = public_key_file.read()
-    with open(KUBE_CONFIG_PATH, 'r') as kubeconfig:
-        kubeconfig_file = kubeconfig.read()
-    encrypted_config_file = encrypt_message(kubeconfig_file, public_key)
-    created = requests.post(API_URL_BASE, headers=headers, json=body_cluster)
-    created_json = json.loads(created.text)
-    print(created_json)
+    with open(config, 'r') as kube_config:
+        kube_config_file = kube_config.read()
+    encrypted_config_file = encrypt_message(kube_config_file, public_key)
 
-    body_put = {
-        "id_cluster": created_json["id_cluster"],
-        "config": encrypted_config_file
+    upload_config_request_data = {
+        "id_cluster": response_json["id_cluster"],
+        "config": encrypted_config_file.decode("utf-8")
     }
 
-    dataspine_admin_url = "http://dataspine-admin.herokuapp.com/api/v1/clusters/upload_config"
-    updated = requests.post(dataspine_admin_url, headers=headers, json=body_put)
-    print(json.loads(updated.text))
+    url = '{}/clusters/upload_config'.format(API_URL_BASE)
+    updated = requests.put(url, headers=headers, json=upload_config_request_data)
+    updated_json = json.loads(updated.text)
+    if updated.status_code != 200:
+        print(updated_json['message'])
+        return
+
     print("Cluster created and config updated")
+
 
 @cluster.command()
 @click.option('--model_name', prompt='Model name', help='Model Name.')
