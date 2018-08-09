@@ -1,13 +1,15 @@
 #-*- coding: utf-8 -*-
 
 import os
+import json
 import ssl
 import click
 import requests
 import subprocess as _subprocess
 from urllib.request import urlopen
 import os.path
-from utils.constants import API_URL_BASE
+from utils import API_URL_BASE
+from utils import get_header_basic_auth
 
 
 @click.group()
@@ -95,3 +97,23 @@ def pull(model_name, model_tag):
     print(cmd)
     print("")
     process = _subprocess.call(cmd, shell=True)
+
+
+@model.command('deploy')
+@click.option('--cluster-name', prompt='Cluster name', help='Cluster name.')
+def deploy(cluster_name):
+    """Deploy the model in your cluster"""
+    url = API_URL_BASE + "/deploy-model"
+    headers = get_header_basic_auth()
+    body_cluster = {
+        "cluster_name": cluster_name
+    }
+
+    updated = requests.post(url, headers=headers, json=body_cluster)
+    # updated_json = json.loads(updated.text)
+    if updated.status_code != 200:
+        # print(updated_json['message'])
+        print(updated)
+        return
+
+    print("Model it's already deploy")

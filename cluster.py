@@ -81,43 +81,6 @@ def create(config, name, alias, description=""):
     print("Cluster created and config updated")
 
 
-@cluster.command()
-@click.option('--model_name', prompt='Model name', help='Model Name.')
-@click.option('--model_tag', prompt='Model tag', help='Model Tag.')
-@click.option('--model_path', prompt='Model path', help='Model Path.')
-def deploy_clusterstart(model_name, model_tag, model_path):
-    url = API_URL_BASE + '/deploy_clusterstart'
-    request = {
-        'model_name': model_name,
-        'model_tag': model_tag,
-        'model_path': model_tag,
-    }
-
-    response = requests.post(url, request).json()
-
-    namespace = response['namespace']
-    rendered_yamls = response['rendered_yamls']
-    for rendered_yaml in rendered_yamls:
-        # For now, only handle '-deploy' and '-svc' and '-ingress' (not autoscale or routerules)
-        basePath = os.path.join(os.path.expanduser(model_path))
-        filePath = os.path.join(basePath, rendered_yaml)
-        f = open(filePath, 'w')
-        f.write(yaml.dump(rendered_yaml))
-        f.close()
-        if ('-stream-deploy' not in rendered_yaml and '-stream-svc' not in rendered_yaml) and (
-                    '-deploy' in rendered_yaml or '-svc' in rendered_yaml or '-ingress' in rendered_yaml):
-            _istio_apply(yaml_path=rendered_yaml,
-                         namespace=namespace)
-
-    model_name = response['model_name']
-    image_registry_namespace = response['image_registry_namespace']
-    endpoint_url = _get_model_kube_endpoint(model_name=model_name, namespace=namespace, image_registry_namespace=image_registry_namespace)
-
-    endpoint_url = endpoint_url.rstrip('/')
-    print("Endpoint URL: '%s'" % endpoint_url)
-
-
-@cluster.command()
 @click.option('--model_name', prompt='Model name', help='Model Name.')
 @click.option('--model_tag', prompt='Model tag', help='Model Tag.')
 def deploy_serverstart(model_name, model_tag):
