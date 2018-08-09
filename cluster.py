@@ -36,6 +36,30 @@ def list_clusters():
     print(tabulate(clusters_list, headers=["Name", "Alias"], tablefmt='orgtbl'))
 
 
+@cluster.command('init')
+@click.option('--cluster', 'cluster_name', prompt='Cluster name', help='The name of the cluster')
+@click.option('--namespace', 'cluster_namespace', help='The name of the cluster')
+def cluster_init(cluster_name, cluster_namespace=None):
+    url = '{}/clusters/init'.format(API_URL_BASE)
+    headers = get_header_basic_auth()
+
+    body = {
+        "cluster_name": cluster_name,
+    }
+
+    if cluster_namespace:
+        body['cluster_namespace'] = cluster_namespace
+
+    response = requests.put(url, headers=headers, json=body)
+    import pdb; pdb.set_trace()
+    if response.status_code == 200:
+        response_json = json.loads(response.text)
+        print(response_json.get('message'))
+    else:
+        print('Unable to initialize cluster')
+
+
+
 @cluster.command()
 @click.option('--config', prompt='Kubeconfig path', help='The path to the configuration file for kubernetes', type=click.Path(exists=True))
 @click.option('--name', 'name', prompt='Cluster name', help='The name of the cluster')
@@ -79,28 +103,6 @@ def create(config, name, alias, description=""):
         return
 
     print("Cluster created and config updated")
-
-
-@cluster.command()
-@click.option('--cluster-name', 'cluster_name', prompt='Cluster name', help='The name of the cluster')
-@click.option('--namespace', 'cluster_namespace', prompt='Cluster namespace', help='The namespace in the cluster')
-@click.option('--model-tag', 'model_tag', prompt="Model tag", help='Tag of the model')
-@click.option('--model-name', 'model_name', prompt="Model name", help='Name of the model')
-def deploy(cluster_name, cluster_namespace, model_tag, model_name):
-    """Deploys a model in a client's cluster"""
-
-    url = '{}/model/deploy'.format(API_URL_BASE)
-    headers = get_header_basic_auth()
-
-    body = {
-        'model_tag': model_tag,
-        'model_name': model_name,
-        'cluster_name': cluster_name,
-        'cluster_namespace': cluster_namespace
-    }
-
-    response = requests.post(url, headers=headers, json=body)
-    print(response.json())
 
 
 @click.option('--model_name', prompt='Model name', help='Model Name.')
