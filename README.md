@@ -30,3 +30,31 @@ Use the CLI to build your model into a container ready to run on any kubernetes 
 `push`: Once your image is ready, push the model to make it available to the dataspine platform. 
 `deploy`: Use this command to create a kubernetes deployment running your model
 `pull`: Download your models from anywhere pulling them from the dataspine platform. 
+
+## Quick Start
+
+To start using dataspine you can use your own models or you can test building a test model from the repo `git@github.com:dataspine/dataspine-notebook-environment.git`
+
+Navigate to `notebooks/keras/ccfd` for a keras example. We'll build it. 
+
+The command to do it is `dataspine model build` and you need to provide the following information
+
+`--model-name`: The name of your model. Can be whatever works for you
+`--model-tag`: The tag of the docker image to be built. Tip: You can add your version here
+`--model-type`: The type of the model, in this case, it'd be Keras
+`--model-path`: Point to where your model is. If you moved to the directory pointed above, you should enter `.
+
+Once you set that up, run the command and wait for it to finish. It can take some time, but after it's done, you'll have a docker image built with the name and tag that you provided.
+
+Once built, we need to push the model. You'll use `dataspine model push` providing the specific `--model-name` and `--model-tag`. This will push the model to the dataspine repository and make it available for deploy.
+
+You are now ready to deploy your model, make sure you have a Kubernetes cluster and that you or your cluster administrator has added the cluster and its proper configs to the Dataspine platform
+
+Now you simply deploy your model using `dataspine model deploy` and make sure you provide the following arguments
+
+`--model-name`: The name of your model. 
+`--model-tag`: The tag of the docker image.
+`--cluster-name`: The name that your cluster has in the Dataspine platform
+`--namespace`: This is optional, if you need to deploy your model in a specific namespace that already exists, then use it.
+
+That's it! you already have a running model in you kubernetes cluster in 3 simple commands.
