@@ -99,24 +99,24 @@ def pull(model_name, model_tag):
     process = _subprocess.call(cmd, shell=True)
 
 
-@model.command('deploy')
-@click.option('--cluster-name', prompt='Cluster name', help='Cluster name.')
-def deploy(cluster_name):
-    """Deploy the model in your cluster"""
-    url = API_URL_BASE + "/deploy-model"
-    headers = get_header_basic_auth()
-    body_cluster = {
-        "cluster_name": cluster_name
-    }
+# @model.command('deploy')
+# @click.option('--cluster-name', prompt='Cluster name', help='Cluster name.')
+# def deploy(cluster_name):
+#     """Deploy the model in your cluster"""
+#     url = API_URL_BASE + "/deploy-model"
+#     headers = get_header_basic_auth()
+#     body_cluster = {
+#         "cluster_name": cluster_name
+#     }
 
-    updated = requests.post(url, headers=headers, json=body_cluster)
-    # updated_json = json.loads(updated.text)
-    if updated.status_code != 200:
-        # print(updated_json['message'])
-        print(updated)
-        return
+#     updated = requests.post(url, headers=headers, json=body_cluster)
+#     # updated_json = json.loads(updated.text)
+#     if updated.status_code != 200:
+#         # print(updated_json['message'])
+#         print(updated)
+#         return
 
-    print("Model it's already deploy")
+#     print("Model it's already deploy")
 
 
 @model.command()
@@ -138,4 +138,5 @@ def deploy(cluster_name, cluster_namespace, model_tag, model_name):
     }
 
     response = requests.post(url, headers=headers, json=body)
-    print(response['message'])
+    response1 = response.json()
+    print(response1['message'])

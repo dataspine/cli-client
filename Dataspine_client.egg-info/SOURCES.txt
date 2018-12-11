@@ -1,0 +1,11 @@
+README.md
+cli.py
+Dataspine_client.egg-info/PKG-INFO
+Dataspine_client.egg-info/SOURCES.txt
+Dataspine_client.egg-info/dependency_links.txt
+Dataspine_client.egg-info/entry_points.txt
+Dataspine_client.egg-info/requires.txt
+Dataspine_client.egg-info/top_level.txt
+utils/__init__.py
+utils/authenticators.py
+utils/constants.py

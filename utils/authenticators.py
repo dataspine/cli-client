@@ -9,7 +9,8 @@ from .constants import USERDATA_PATH
 def get_header_basic_auth():
     headers = {
         "authorization": get_encoded_string(),
-        "x-account-uuid": get_account_uuid()
+        "x-account-uuid": get_account_uuid(),
+        "token": get_token()
     }
 
     return headers
@@ -24,6 +25,12 @@ def get_encoded_string():
     encoded_str = encode(username, password)
 
     return encoded_str
+
+def get_token():
+    config = configparser.ConfigParser()
+    config.read(USERDATA_PATH)
+    token = config.get('default', 'token')
+    return token 
 
 
 def get_account_uuid():

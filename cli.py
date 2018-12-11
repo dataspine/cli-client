@@ -42,9 +42,9 @@ main.add_command(model)
 @main.command()
 @click.option('--username', prompt='Username', help='User Name.')
 @click.option('--password', prompt='Password', help='User Password.', hide_input=True)
-@click.option('--account-uuid', prompt='Account UUID', help='User Account UUID.', hide_input=True)
+@click.option('--account-uuid', prompt='Account UUID', help='User Account UUID.', hide_input=False)
 def login(username, password, account_uuid):
-    """Simple program that authenticate user"""
+    """Simple program that authenticates user"""
     url = API_URL_BASE+"/login"
     encoded_str = encode(username, password)
     headers = {
@@ -53,15 +53,15 @@ def login(username, password, account_uuid):
     }
 
     response = requests.get(url, headers=headers)
-    public_key = json.loads(response.text)
+    keys = json.loads(response.text)
 
     config = configparser.ConfigParser()
-    config['default'] = {'username': username, 'account-uuid': account_uuid}
+    config['default'] = {'username': username, 'account-uuid': account_uuid, 'token': keys["token"]}
 
     if response.status_code == 200:
         os.makedirs(os.path.dirname(PUBLIC_KEY_PATH), exist_ok=True)
         with open(PUBLIC_KEY_PATH, 'w') as f:
-            f.write(public_key["public_key"])
+            f.write(keys["public_key"])
 
         os.makedirs(os.path.dirname(USERDATA_PATH), exist_ok=True)
         with open(USERDATA_PATH, "w") as configfile:

@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(
-  name='Dataspine Client CLI',
+  name='Dataspine-client',
   version='1.0',
   packages=['utils'],
   py_modules=['cli'],
@@ -9,6 +9,6 @@ setup(
   install_requires=['click'],
   entry_points='''
     [console_scripts]
-    ds=cli:cli_commands
+    dataspine=cli:cli_commands
   ''',
 )

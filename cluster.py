@@ -51,7 +51,7 @@ def cluster_init(cluster_name, cluster_namespace=None):
         body['cluster_namespace'] = cluster_namespace
 
     response = requests.put(url, headers=headers, json=body)
-    import pdb; pdb.set_trace()
+    # import pdb; pdb.set_trace()
     if response.status_code == 200:
         response_json = json.loads(response.text)
         print(response_json.get('message'))
@@ -65,7 +65,7 @@ def cluster_init(cluster_name, cluster_namespace=None):
 @click.option('--name', 'name', prompt='Cluster name', help='The name of the cluster')
 @click.option('--alias', 'alias', prompt="Cluster alias", help='The alias of the cluster')
 @click.option('--description', help='The description or purpose of the cluster')
-def create(config, name, alias, description=""):
+def add(config, name, alias, description=""):
     """Creates a cluster for the account"""
 
     url = '{}/clusters/create'.format(API_URL_BASE)
@@ -89,7 +89,8 @@ def create(config, name, alias, description=""):
     with open(config, 'r') as kube_config:
         kube_config_file = kube_config.read()
     encrypted_config_file = encrypt_message(kube_config_file, public_key)
-
+    # print (response_json["id_cluster"])
+    # print(encrypted_config_file.decode("utf-8"))id_cluster
     upload_config_request_data = {
         "id_cluster": response_json["id_cluster"],
         "config": encrypted_config_file.decode("utf-8")

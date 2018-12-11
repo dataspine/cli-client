@@ -1,0 +1,4 @@
+
+    [console_scripts]
+    dataspine=cli:cli_commands
+  
