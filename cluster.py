@@ -187,8 +187,8 @@ def decrypt_message(encoded_encrypted_msg, privatekey):
 
 def _istio_apply(yaml_path,
                  namespace=None):
-    if not namespace:
-        namespace = _default_namespace
+    # if not namespace:
+        # namespace = _default_namespace
 
     cmd = 'istioctl kube-inject -f %s' % yaml_path
     print("")

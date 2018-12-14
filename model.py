@@ -140,3 +140,36 @@ def deploy(cluster_name, cluster_namespace, model_tag, model_name):
     response = requests.post(url, headers=headers, json=body)
     response1 = response.json()
     print(response1['message'])
+
+
+
+@model.command('endpoint')
+@click.option('--model-name', 'model_name', prompt="Model name", help='Name of the model')
+def model_endpoint(model_name):
+    """Get the model endpoint"""
+
+    url = '{}/predict-kube-endpoint'.format(API_URL_BASE)
+    headers = get_header_basic_auth()
+    body = {
+        'model_name': model_name
+    }
+
+    response = requests.get(url, headers=headers, json=body).json()
+    print("The model's endpoint is", response['endpoint_url'])
+
+
+@model.command('variants')
+@click.option('--model-name', 'model_name', prompt="Model name", help='Name of the model')
+def model_variants(model_name):
+    """List the model's variants'"""
+
+    url = '{}/model/variants'.format(API_URL_BASE)
+    headers = get_header_basic_auth()
+    body = {
+        'model_name': model_name
+    }
+
+    response = requests.get(url, headers=headers, json=body).json()
+    print("The model's variants are:")
+    for f in response['model_variants']:
+        print(f)
