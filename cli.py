@@ -11,6 +11,7 @@ import configparser
 from utils import API_URL_BASE, PUBLIC_KEY_PATH, USERDATA_PATH
 from cluster import cluster
 from model import model
+from predict import predict
 
 
 @click.group()
@@ -20,7 +21,7 @@ def main():
 
 main.add_command(cluster)
 main.add_command(model)
-
+main.add_command(predict)
 ################################
 
 # data = {}
