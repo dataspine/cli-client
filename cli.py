@@ -45,19 +45,30 @@ main.add_command(predict)
 @click.option('--password', prompt='Password', help='User Password.', hide_input=True)
 @click.option('--account-uuid', prompt='Account UUID', help='User Account UUID.', hide_input=False)
 def login(username, password, account_uuid):
-    """Simple program that authenticates user"""
+    """Authentication for Dataspine"""
     url = API_URL_BASE+"/login"
     encoded_str = encode(username, password)
     headers = {
         "authorization": encoded_str,
         "x-account-uuid": account_uuid
     }
+    try:
+        from json.decoder import JSONDecodeError
+    except ImportError:
+        JSONDecodeError = ValueError
+
 
     response = requests.get(url, headers=headers)
-    keys = json.loads(response.text)
+    try:
+        keys = json.loads(response.text)
+        # print(keys)
+    except JSONDecodeError:
+        print ("Something went wrong")
 
+    user_data = keys["user"]
     config = configparser.ConfigParser()
-    config['default'] = {'username': username, 'account-uuid': account_uuid, 'token': keys["token"]}
+    config['default'] = {'First Name': user_data["user_name"], 'Second Name': user_data["user_lastname"], 'Email': user_data["user_email"], 'Role': user_data["user_role"],
+          'username': username, 'account-uuid': account_uuid, 'token': keys["token"]}
 
     if response.status_code == 200:
         os.makedirs(os.path.dirname(PUBLIC_KEY_PATH), exist_ok=True)

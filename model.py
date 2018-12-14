@@ -25,7 +25,7 @@ def model():
 @click.option('--model-path', prompt='Model path', help='Model Path.')
 # @click.option('--model_runtime', prompt = 'Model runtime', help = 'Model runtime.', required = False, default = None)
 def build(model_name, model_tag, model_type, model_path):
-    """Build model command on main group"""
+    """Build model container"""
 
     url = API_URL_BASE + '/buildmodel'
     directory = _subprocess.call('pwd', shell=True)
@@ -125,7 +125,7 @@ def pull(model_name, model_tag):
 @click.option('--model-tag', 'model_tag', prompt="Model tag", help='Tag of the model')
 @click.option('--model-name', 'model_name', prompt="Model name", help='Name of the model')
 def deploy(cluster_name, cluster_namespace, model_tag, model_name):
-    """Deploys a model in a client's cluster"""
+    """Deploy a model in the cluster"""
 
     url = '{}/model/deploy'.format(API_URL_BASE)
     headers = get_header_basic_auth()
@@ -161,7 +161,7 @@ def model_endpoint(model_name):
 @model.command('variants')
 @click.option('--model-name', 'model_name', prompt="Model name", help='Name of the model')
 def model_variants(model_name):
-    """List the model's variants'"""
+    """List the model's variants"""
 
     url = '{}/model/variants'.format(API_URL_BASE)
     headers = get_header_basic_auth()
@@ -173,3 +173,4 @@ def model_variants(model_name):
     print("The model's variants are:")
     for f in response['model_variants']:
         print(f)
+
