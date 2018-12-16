@@ -144,14 +144,16 @@ def deploy(cluster_name, cluster_namespace, model_tag, model_name):
 
 
 @model.command('endpoint')
+@click.option('--cluster name', 'cluster', prompt='Cluster name', help='The name of the cluster')
 @click.option('--model-name', 'model_name', prompt="Model name", help='Name of the model')
-def model_endpoint(model_name):
+def model_endpoint(model_name, cluster):
     """Get the model endpoint"""
 
     url = '{}/predict-kube-endpoint'.format(API_URL_BASE)
     headers = get_header_basic_auth()
     body = {
-        'model_name': model_name
+        'model_name': model_name,
+        'cluster_name': cluster
     }
 
     response = requests.get(url, headers=headers, json=body).json()

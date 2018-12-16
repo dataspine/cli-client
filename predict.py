@@ -19,10 +19,11 @@ def predict():
 
 
 @predict.command('route')
+@click.option('--cluster name', 'cluster', prompt='Cluster name', help='The name of the cluster')
 @click.option('--model name', 'model', prompt='Model name', help='The name of the model')
 @click.option('--weights', 'model_split_tag_and_weight_dict', prompt='Weights with model tags', help='Provide weights along with model tags i.e. {"a": 100, "b": 0, "c": 0}')
 @click.option('--shadow weights', 'model_shadow_tag_list', prompt='Shadow model tags', help='Provide shadow model tags i.e. [b, c] Note: must set b and c to traffic split 0 above')
-def routetraffic(model, model_split_tag_and_weight_dict, model_shadow_tag_list):
+def routetraffic(cluster, model, model_split_tag_and_weight_dict, model_shadow_tag_list):
     """Route traffic between different versions"""
 
     url = API_URL_BASE + '/predict-route'
@@ -32,6 +33,7 @@ def routetraffic(model, model_split_tag_and_weight_dict, model_shadow_tag_list):
         'model_split_tag_and_weight_dict': model_split_tag_and_weight_dict,
         'model_shadow_tag_list': model_shadow_tag_list,
         'model_name': model,
+        'cluster_name': cluster
     }
     try:
         response = requests.post(url, headers=headers, json=body).json()
@@ -45,11 +47,13 @@ def routetraffic(model, model_split_tag_and_weight_dict, model_shadow_tag_list):
 
 
 @predict.command('test')
+@click.option('--cluster name', 'cluster', prompt='Cluster name', help='The name of the cluster')
 @click.option('--model name', 'model', prompt='Model name', help='The name of the model')
 @click.option('--test file', 'test_request_path', prompt='Test request file(json)', help='Path for the test request json file' )
 @click.option('--test concurrency', 'test_request_concurrency', prompt='Request concurrency', help='Provide the concurrency required for requests')
 def modeltest_http(test_request_path,
                    model,
+                   cluster,
                    test_request_concurrency,
                    test_request_mime_type='application/json',
                    test_response_mime_type='application/json',
@@ -59,7 +63,8 @@ def modeltest_http(test_request_path,
     url = '{}/predict-kube-endpoint'.format(API_URL_BASE)
     headers = get_header_basic_auth()
     body = {
-        'model_name': model
+        'model_name': model,
+        'cluster_name': cluster
     }
     test_request_concurrency = int(test_request_concurrency)
     response = requests.get(url, headers=headers, json=body).json()
@@ -96,7 +101,7 @@ def _predict_http_test(endpoint_url,
 
     headers = {'Content-type': test_request_mime_type,
                'Accept': test_response_mime_type,
-               'host': 'predict-mnist.default.svc.cluster.local'
+               'Host': 'predict-ccfd.default.svc.cluster.local'
                }
     from datetime import datetime
 
