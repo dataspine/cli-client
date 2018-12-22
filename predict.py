@@ -101,7 +101,7 @@ def _predict_http_test(endpoint_url,
 
     headers = {'Content-type': test_request_mime_type,
                'Accept': test_response_mime_type,
-               'Host': 'predict-ccfd.default.svc.cluster.local'
+               'Host': 'predict-mnist.default.svc.cluster.local'
                }
     from datetime import datetime
 

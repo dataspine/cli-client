@@ -1,5 +1,6 @@
 README.md
 cli.py
+setup.py
 Dataspine_client.egg-info/PKG-INFO
 Dataspine_client.egg-info/SOURCES.txt
 Dataspine_client.egg-info/dependency_links.txt
