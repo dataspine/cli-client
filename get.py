@@ -23,12 +23,10 @@ def get():
 def getdeployments(clustername):
     url = API_URL_BASE + '/getdeployments'
     headers = get_header_basic_auth()
+    headers["cluster_name"] = clustername
 
-    body = {
-        'cluster_name': clustername
-    }
     try:
-        response = requests.get(url, headers=headers, json=body).json()
+        response = requests.get(url, headers=headers).json()
         deployments_list = []
         items =  response["items"]
         for deployment in items:
@@ -43,15 +41,13 @@ def getdeployments(clustername):
 
 @get.command('services')
 @click.option('--cluster name', 'clustername', prompt='Cluster name', help='The name of the cluster')
-def getdeployments(clustername):
+def getservices(clustername):
     url = API_URL_BASE + '/getservices'
     headers = get_header_basic_auth()
+    headers["cluster_name"] = clustername
 
-    body = {
-        'cluster_name': clustername
-    }
     try:
-        response = requests.get(url, headers=headers, json=body).json()
+        response = requests.get(url, headers=headers).json()
         deployments_list = []
         items =  response["items"]
         for deployment in items:

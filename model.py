@@ -151,6 +151,7 @@ def model_endpoint(model_name, cluster):
 
     url = '{}/predict-kube-endpoint'.format(API_URL_BASE)
     headers = get_header_basic_auth()
+    headers["cluster_name"] = cluster
     body = {
         'model_name': model_name,
         'cluster_name': cluster
