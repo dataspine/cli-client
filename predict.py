@@ -11,7 +11,7 @@ from utils import API_URL_BASE, API_SERVER
 from utils import get_header_basic_auth
 from model import model_endpoint
 from pprint import pprint
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 
 
 @click.group()
