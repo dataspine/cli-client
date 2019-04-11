@@ -42,7 +42,7 @@ def init(model_chip, model_tag, model_name, model_runtime, model_type, model_pat
         'model_chip' : model_chip,
         'model_path' : model_path,
     }
-    _model_subdir_name = 'directory'
+    _model_subdir_name = 'spine'
 
 
     model_path = os.path.expandvars(model_path)
@@ -62,7 +62,7 @@ def init(model_chip, model_tag, model_name, model_runtime, model_type, model_pat
     for file in response['model_files']:
         with open(file['relative_model_file_path'], 'wt') as fh:
                 fh.write(file['file_contents'])
-    print ("System files have been initialized in your current directory")
+    print ("System files have been initialized. Please check the spine directory")
 
 
 @model.command()
