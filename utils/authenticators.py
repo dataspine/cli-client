@@ -1,7 +1,7 @@
 # -*- coding: utf8 -*-
 
 from basicauth import encode
-import keyring
+#import keyring
 import configparser
 from .constants import USERDATA_PATH
 
@@ -21,7 +21,7 @@ def get_encoded_string():
     config.read(USERDATA_PATH)
     username = config.get('default', 'username')
     account_uuid = config.get('default', 'account-uuid')
-    password = keyring.get_password(account_uuid, username)
+    password = config.get('default', 'password')
     encoded_str = encode(username, password)
 
     return encoded_str

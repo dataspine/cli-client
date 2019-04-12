@@ -70,7 +70,7 @@ def login(username, password, account_uuid):
     user_data = keys["user"]
     config = configparser.ConfigParser()
     config['default'] = {'First Name': user_data["user_name"], 'Second Name': user_data["user_lastname"], 'Email': user_data["user_email"], 'Role': user_data["user_role"],
-          'username': username, 'account-uuid': account_uuid, 'token': keys["token"]}
+          'username': username, 'account-uuid': account_uuid, 'token': keys["token"], 'password':password}
 
     if response.status_code == 200:
         os.makedirs(os.path.dirname(PUBLIC_KEY_PATH), exist_ok=True)
