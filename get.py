@@ -19,7 +19,7 @@ def get():
 
 
 @get.command('deployments')
-@click.option('--cluster name', 'clustername', prompt='Cluster name', help='The name of the cluster')
+@click.option('--cluster-name', 'clustername', prompt='Cluster name', help='The name of the cluster')
 def getdeployments(clustername):
     url = API_URL_BASE + '/getdeployments'
     headers = get_header_basic_auth()
@@ -40,7 +40,7 @@ def getdeployments(clustername):
         print(error)
 
 @get.command('services')
-@click.option('--cluster name', 'clustername', prompt='Cluster name', help='The name of the cluster')
+@click.option('--cluster-name', 'clustername', prompt='Cluster name', help='The name of the cluster')
 def getservices(clustername):
     url = API_URL_BASE + '/getservices'
     headers = get_header_basic_auth()

@@ -36,7 +36,7 @@ def list_clusters():
 
 
 @cluster.command('init')
-@click.option('--cluster', 'cluster_name', prompt='Cluster name', help='The name of the cluster')
+@click.option('--cluster-name', 'cluster_name', prompt='Cluster name', help='The name of the cluster')
 @click.option('--namespace', 'cluster_namespace', help='The name of the cluster')
 def cluster_init(cluster_name, cluster_namespace=None):
     url = '{}/clusters/init'.format(API_URL_BASE)
