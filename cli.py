@@ -6,7 +6,7 @@ import click
 import requests
 import os.path
 from basicauth import encode
-import keyring
+#import keyring
 import configparser
 from utils import API_URL_BASE, PUBLIC_KEY_PATH, USERDATA_PATH, API_SERVER
 from cluster import cluster
@@ -81,7 +81,7 @@ def login(username, password, account_uuid):
         with open(USERDATA_PATH, "w") as configfile:
             config.write(configfile)
 
-        keyring.set_password(service_name=account_uuid, username=username, password=password)
+        #keyring.set_password(service_name=account_uuid, username=username, password=password)
         print('Login Succeeded!')
     else:
         print('Invalid credentials!')
