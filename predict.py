@@ -139,7 +139,7 @@ def _predict_http_test(endpoint_url,
     if response.text:
         print("")
         pprint(response.text)
-        image = json.loads(response.text)['outputs']['image_mask']
+        #image = json.loads(response.text)['outputs']['image_mask']
         #plt.imshow(image)
         #plt.show()
 

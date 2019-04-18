@@ -280,7 +280,7 @@ def pull(model_name, model_tag):
 
 @model.command()
 #@click.option('--cluster-name', 'cluster_name', prompt='Cluster name', help='The name of the cluster')
-@click.option('--namespace', 'cluster_namespace', prompt='Cluster namespace', help='The namespace in the cluster')
+#@click.option('--namespace', 'cluster_namespace', prompt='Cluster namespace', help='The namespace in the cluster')
 @click.option('--model-tag', 'model_tag', prompt="Model tag", help='Tag of the model')
 @click.option('--model-name', 'model_name', prompt="Model name", help='Name of the model')
 def deploy(model_tag, model_name):
