@@ -279,11 +279,11 @@ def pull(model_name, model_tag):
 
 
 @model.command()
-@click.option('--cluster-name', 'cluster_name', prompt='Cluster name', help='The name of the cluster')
+#@click.option('--cluster-name', 'cluster_name', prompt='Cluster name', help='The name of the cluster')
 @click.option('--namespace', 'cluster_namespace', prompt='Cluster namespace', help='The namespace in the cluster')
 @click.option('--model-tag', 'model_tag', prompt="Model tag", help='Tag of the model')
 @click.option('--model-name', 'model_name', prompt="Model name", help='Name of the model')
-def deploy(cluster_name, cluster_namespace, model_tag, model_name):
+def deploy(model_tag, model_name):
     """Deploy a model in the cluster"""
 
     url = '{}/model/deploy'.format(API_URL_BASE)
@@ -292,8 +292,8 @@ def deploy(cluster_name, cluster_namespace, model_tag, model_name):
     body = {
         'model_tag': model_tag,
         'model_name': model_name,
-        'cluster_name': cluster_name,
-        'cluster_namespace': cluster_namespace
+        # 'cluster_name': cluster_name,
+        # 'cluster_namespace': cluster_namespace
     }
 
     response = requests.post(url, headers=headers, json=body)
@@ -323,17 +323,17 @@ def traincluster(model_tag, model_name):
 
 
 @model.command('endpoint')
-@click.option('--cluster name', 'cluster', prompt='Cluster name', help='The name of the cluster')
+#@click.option('--cluster name', 'cluster', prompt='Cluster name', help='The name of the cluster')
 @click.option('--model-name', 'model_name', prompt="Model name", help='Name of the model')
-def model_endpoint(model_name, cluster):
+def model_endpoint(model_name):
     """Get the model endpoint"""
 
     url = '{}/predict-kube-endpoint'.format(API_URL_BASE)
     headers = get_header_basic_auth()
-    headers["cluster_name"] = cluster
+    #headers["cluster_name"] = cluster
     body = {
         'model_name': model_name,
-        'cluster_name': cluster
+        #'cluster_name': cluster
     }
 
     response = requests.get(url, headers=headers, json=body).json()
