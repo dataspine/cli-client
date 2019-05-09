@@ -100,6 +100,18 @@ def help():
 
 
 @main.command()
+@click.option('--account-uuid', prompt='Account UUID', help='User Account UUID.', hide_input=False)
+def init(account_id):
+   """Init command on main group"""
+   url = API_URL_BASE + '/init'
+   headers = {
+       "x-account-uuid": account_uuid
+   }
+   response = requests.get(url, headers=headers).json()
+   print (response)
+
+
+@main.command()
 def version():
     """Version command on main group"""
     url = API_URL_BASE + '/version'

@@ -340,19 +340,19 @@ def model_endpoint(model_name):
     print("The model's endpoint is", response['endpoint_url'])
 
 
-# @model.command('variants')
-# @click.option('--model-name', 'model_name', prompt="Model name", help='Name of the model')
-# def model_variants(model_name):
-#     """List the model's variants"""
+@model.command('variants')
+@click.option('--model-name', 'model_name', prompt="Model name", help='Name of the model')
+def model_variants(model_name):
+    """List the model's variants"""
 
-#     url = '{}/model/variants'.format(API_URL_BASE)
-#     headers = get_header_basic_auth()
-#     body = {
-#         'model_name': model_name
-#     }
+    url = '{}/model/variants'.format(API_URL_BASE)
+    headers = get_header_basic_auth()
+    body = {
+        'model_name': model_name
+    }
 
-#     response = requests.get(url, headers=headers, json=body).json()
-#     print("The model's variants are:")
-#     for f in response['model_variants']:
-#         print(f)
+    response = requests.get(url, headers=headers, json=body).json()
+    print("The model's variants are:")
+    for f in response['model_variants']:
+        print(f)
 

@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 import sys
 import os
 
-__version__ = "0.2.0rc0"
+__version__ = "0.2.0"
 
 #ORIGINAL CLI CLIENT SETUP + old reqs
 # setup(
