@@ -101,7 +101,7 @@ def help():
 
 @main.command()
 @click.option('--account-uuid', prompt='Account UUID', help='User Account UUID.', hide_input=False)
-def init(account_id):
+def init(account_uuid):
    """Init command on main group"""
    url = API_URL_BASE + '/init'
    headers = {
