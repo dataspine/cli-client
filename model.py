@@ -206,23 +206,44 @@ def push(model_name, model_tag):
     process = _subprocess.call(cmd, shell=True)
 
 
+# @model.command()
+# @click.option('--git-url', prompt='Git URL', help='Git URL')
+# @click.option('--model-name', prompt='Model name', help='Model name')
+# @click.option('--model-tag', prompt='Model tag', help='Model tag')
+# def build(git_url, model_name, model_tag):
+#     """Build model and push to registry"""
+#     url = API_URL_BASE + '/model/cbi/build'
+#     request = {
+#         'git_url': git_url,
+#         'model_name': model_name,
+#         'model_tag': model_tag,
+#         # 'model_runtime': model_runtime,
+#     }
+#     response = requests.post(url, request).json()
+
+#     #response1 = response.json()
+#     print(response['message'])
+
+
 @model.command()
+@click.option('--account-id', 'account_id', prompt='Account ID', help='Account ID')
 @click.option('--git-url', prompt='Git URL', help='Git URL')
 @click.option('--model-name', prompt='Model name', help='Model name')
 @click.option('--model-tag', prompt='Model tag', help='Model tag')
-def build(git_url, model_name, model_tag):
-    """Build model and push to registry"""
-    url = API_URL_BASE + '/model/cbi/build'
-    request = {
-        'git_url': git_url,
-        'model_name': model_name,
-        'model_tag': model_tag,
-        # 'model_runtime': model_runtime,
-    }
-    response = requests.post(url, request).json()
+def build(git_url, model_name, model_tag, account_id):
+   """Build model and push to registry"""
+   url = API_URL_BASE + '/model/cbi/build'
+   request = {
+       'git_url': git_url,
+       'model_name': model_name,
+       'model_tag': model_tag,
+       'account_id': account_id,
+       # 'model_runtime': model_runtime,
+   }
+   response = requests.post(url, request).json()
 
-    #response1 = response.json()
-    print(response['message'])
+   #response1 = response.json()
+   print(response['message'])
 
 
 @model.command('build-logs')

@@ -1,11 +1,13 @@
 .DS_Store
 .gitignore
+LICENSE.txt
 README.md
 authenticate.pyc
 cli.py
 cli.pyc
 model.py
 predict.py
+requirements.txt
 setup.cfg
 setup.py
 .vscode/settings.json
@@ -15,6 +17,7 @@ dataspine_cli.egg-info/dependency_links.txt
 dataspine_cli.egg-info/entry_points.txt
 dataspine_cli.egg-info/requires.txt
 dataspine_cli.egg-info/top_level.txt
+utils/.DS_Store
 utils/__init__.py
 utils/authenticators.py
 utils/constants.py
