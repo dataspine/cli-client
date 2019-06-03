@@ -113,6 +113,7 @@ def modeltest_http(test_request_path,
     from concurrent.futures import ThreadPoolExecutor
     url = '{}/predict-kube-endpoint'.format(API_URL_BASE)
     headers = get_header_basic_auth()
+    account_id = headers["x-account-uuid"]
     body = {
         'model_name': model,
     }
@@ -125,6 +126,7 @@ def modeltest_http(test_request_path,
         for _ in range(test_request_concurrency):
             executor.submit(_predict_http_test(endpoint_url=endpoint_url,
                                                model_name = model,
+                                               account_id = account_id,
                                                test_request_path=test_request_path,
                                                test_request_mime_type=test_request_mime_type,
                                                test_response_mime_type=test_response_mime_type,
@@ -133,6 +135,7 @@ def modeltest_http(test_request_path,
 
 def _predict_http_test(endpoint_url,
                        model_name,
+                       account_id,
                        test_request_path,
                        test_request_mime_type='application/json',
                        test_response_mime_type='application/json',
@@ -151,7 +154,7 @@ def _predict_http_test(endpoint_url,
     with open(test_request_path, 'rb') as fh:
         model_input_binary = fh.read()
 
-    host_header = 'predict-%s.default.svc.cluster.local' % (model_name)
+    host_header = 'predict-%s.%s.svc.cluster.local' % (model_name, account_id)
     headers = {'Content-type': test_request_mime_type,
                'Accept': test_response_mime_type,
                'Host': host_header
