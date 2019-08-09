@@ -1,0 +1,4 @@
+
+    [console_scripts]
+    spinectl=cli:cli_commands
+  
