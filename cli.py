@@ -3,6 +3,7 @@
 import os
 import json
 import click
+import base64
 import requests
 import os.path
 from basicauth import encode
@@ -49,7 +50,10 @@ main.add_command(get)
 def login(username, password, account_uuid):
     """Authentication for Dataspine"""
     url = API_URL_BASE+"/login"
-    encoded_str = encode(username, password)
+    string_name = '{}:{}'.format(username, password)
+    encoded_str = "Basic " + (base64.b64encode(string_name.encode('utf-8'))).decode('utf-8')
+
+
     headers = {
         "authorization": encoded_str,
         "x-account-uuid": account_uuid
@@ -61,29 +65,27 @@ def login(username, password, account_uuid):
 
 
     response = requests.get(url, headers=headers)
+
     try:
         keys = json.loads(response.text)
+        user_data = keys["user"]
+        config = configparser.ConfigParser()
+        config['default'] = {'First Name': user_data["user_name"], 'Second Name': user_data["user_lastname"], 'Email': user_data["user_email"], 'Role': user_data["user_role"],
+              'username': username, 'account-uuid': account_uuid, 'token': keys["token"], 'password':password}
+
+        if response.status_code == 200:
+            os.makedirs(os.path.dirname(PUBLIC_KEY_PATH), exist_ok=True)
+            with open(PUBLIC_KEY_PATH, 'w') as f:
+                f.write(keys["public_key"])
+
+            os.makedirs(os.path.dirname(USERDATA_PATH), exist_ok=True)
+            with open(USERDATA_PATH, "w") as configfile:
+                config.write(configfile)
+
+            #keyring.set_password(service_name=account_uuid, username=username, password=password)
+            print('Login Succeeded!')
         # print(keys)
-    except JSONDecodeError:
-        print ("Something went wrong")
-
-    user_data = keys["user"]
-    config = configparser.ConfigParser()
-    config['default'] = {'First Name': user_data["user_name"], 'Second Name': user_data["user_lastname"], 'Email': user_data["user_email"], 'Role': user_data["user_role"],
-          'username': username, 'account-uuid': account_uuid, 'token': keys["token"], 'password':password}
-
-    if response.status_code == 200:
-        os.makedirs(os.path.dirname(PUBLIC_KEY_PATH), exist_ok=True)
-        with open(PUBLIC_KEY_PATH, 'w') as f:
-            f.write(keys["public_key"])
-
-        os.makedirs(os.path.dirname(USERDATA_PATH), exist_ok=True)
-        with open(USERDATA_PATH, "w") as configfile:
-            config.write(configfile)
-
-        #keyring.set_password(service_name=account_uuid, username=username, password=password)
-        print('Login Succeeded!')
-    else:
+    except:
         print('Invalid credentials!')
 
 
