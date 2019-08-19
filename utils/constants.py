@@ -5,8 +5,8 @@ HOME = str(Path.home())
 
 BASE_URL = 'http://localhost'
 BASE_URL_BACKEND = 'https://auth.dataspine.io'
-BASE_API_SERVER = 'http://localhost'
-PORT = 5000
+BASE_API_SERVER = 'https://apiserver.dataspine.io'
+PORT = 443
 API_URL_BASE = "{}:{}".format(BASE_API_SERVER, PORT)
 API_BACKEND = "{}:{}".format(BASE_URL_BACKEND, PORT)
 API_SERVER = "{}:{}".format(BASE_API_SERVER, PORT)
