@@ -62,6 +62,8 @@ def login(username, password, account_uuid):
         from json.decoder import JSONDecodeError
     except ImportError:
         JSONDecodeError = ValueError
+    except:
+        print("Backend error (json.decoder not found) . Contact the developer")
 
 
     response = requests.get(url, headers=headers)

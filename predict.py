@@ -63,7 +63,7 @@ def deletetraffic(model):
         response = requests.delete(url, headers=headers, json=body).json()
         print('Status:' , response['message'])
 
-    except KeyError:
+    except:
         error = 'Something went wrong'
         print(error)
 
@@ -129,12 +129,15 @@ def _predict_http_test(endpoint_url,
                }
     from datetime import datetime
 
-    begin_time = datetime.now()
-    response = requests.post(url=full_endpoint_url,
-                             headers=headers,
-                             data=model_input_binary,
-                             timeout=test_request_timeout_seconds)
-    end_time = datetime.now()
+    try:
+      begin_time = datetime.now()
+      response = requests.post(url=full_endpoint_url,
+                               headers=headers,
+                               data=model_input_binary,
+                               timeout=test_request_timeout_seconds)
+      end_time = datetime.now()
+    except:
+      print("Bad request, _predict_http_test")
 
     if response.text:
         print("")
