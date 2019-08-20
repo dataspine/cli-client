@@ -13,7 +13,7 @@ from utils import API_URL_BASE, PUBLIC_KEY_PATH, USERDATA_PATH, API_SERVER
 from cluster import cluster
 from model import model
 from predict import predict
-from get import get
+#from get import get
 
 
 @click.group()
@@ -24,7 +24,7 @@ def main():
 main.add_command(cluster)
 main.add_command(model)
 main.add_command(predict)
-main.add_command(get)
+#main.add_command(get)
 ################################
 
 # data = {}
@@ -101,6 +101,18 @@ def help():
     # if (valid_token() == True):
     #     url = URL + '/help'
     #     response = requests.gore_filter
+
+
+@main.command()
+@click.option('--account-uuid', prompt='Account UUID', help='User Account UUID.', hide_input=False)
+def init(account_uuid):
+   """Init command on main group"""
+   url = API_URL_BASE + '/init'
+   headers = {
+       "x-account-uuid": account_uuid
+   }
+   response = requests.get(url, headers=headers).json()
+   print (response)
 
 
 @main.command()

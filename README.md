@@ -1,6 +1,41 @@
-# Dataspine CLI
+# Dataspine CLI reference
 
-Use the dataspine CLI to create, manage, and deploy your own models to your kubernetes cluster seamlessly and in a predictive way.
+![Dataspine Logo](http://s3.amazonaws.com/dataspine/dataspine-logo-black.png)
+
+
+### Dataspine CLI commands
+```
+spinectl help
+
+### EXPECTED OUTPUT ###
+...
+
+get deployments             <-- Displays a list of deployments on the cluster
+get services                <-- Displays a list of service endpoints on the cluster
+
+help                        <-- This List of CLI Commands
+
+login			 			<-- Authenticates the user with Dataspine backend
+
+model build 				<-- Packages the model code into a container image 
+model build-manifest 	    <-- Generates a build manifest (Dockerfile) for the model/project
+model build-logs 			<-- Displays logs for the model build job
+model deploy 				<-- Deploys model on cluster
+model endpoint 				<-- Displays the endpoint uri for a deployed model
+model init 					<-- Creates a model/project directory structure 
+ 
+
+predict create-route 		<-- Creates traffic routes for the deployed model endpoint  
+predict test				<-- Pings the model server with a test request file 
+predict delete-route		<-- Deletes traffic routes for the deployed model endpoint 
+
+version                     <-- View This CLI Version
+```
+
+
+# Dataspine CLI concepts
+
+Use the Dataspine CLI to create, manage, and deploy your own models to your Kubernetes cluster seamlessly and in a predictive way.
 
 Configure dataspine to use your existing kubernetes cluster in a tenant-managed and secure way. 
 
