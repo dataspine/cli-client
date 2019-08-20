@@ -42,8 +42,8 @@ def init(model_chip, model_tag, model_name, model_runtime, model_type, model_pat
         'model_chip' : model_chip,
         'model_path' : model_path,
     }
-    _model_subdir_name = 'spine'
-
+    #_model_subdir_name = 'spine'
+    _model_subdir_name = model_name
 
     model_path = os.path.expandvars(model_path)
     model_path = os.path.expanduser(model_path)
@@ -62,10 +62,10 @@ def init(model_chip, model_tag, model_name, model_runtime, model_type, model_pat
     for file in response['model_files']:
         with open(file['relative_model_file_path'], 'wt') as fh:
                 fh.write(file['file_contents'])
-    print ("System files have been initialized. Please check the spine directory")
+    print ("Model files have been initialized. Please check the project directory")
 
 
-@model.command()
+@model.command('build-manifest')
 @click.option('--model-name', prompt='Model name', help='Model Name.')
 @click.option('--model-tag', prompt='Model tag', help='Model Tag.')
 @click.option('--model-type', prompt='Model type', help='Model Type.')
@@ -142,47 +142,47 @@ def buildfiles(model_name, model_tag, model_type, model_path):
 
 
 
-@model.command()
-@click.option('--model-name', prompt='Model name', help='Model Name.')
-@click.option('--model-tag', prompt='Model tag', help='Model Tag.')
-@click.option('--model-type', prompt='Model type', help='Model Type.')
-@click.option('--model-path', prompt='Model path', help='Model Path.')
-# @click.option('--model_runtime', prompt = 'Model runtime', help = 'Model runtime.', required = False, default = None)
-def train(model_name, model_tag, model_type, model_path):
-    """Build train container"""
+# @model.command()
+# @click.option('--model-name', prompt='Model name', help='Model Name.')
+# @click.option('--model-tag', prompt='Model tag', help='Model Tag.')
+# @click.option('--model-type', prompt='Model type', help='Model Type.')
+# @click.option('--model-path', prompt='Model path', help='Model Path.')
+# # @click.option('--model_runtime', prompt = 'Model runtime', help = 'Model runtime.', required = False, default = None)
+# def train(model_name, model_tag, model_type, model_path):
+#     """Build train container"""
 
-    url = API_URL_BASE + '/build/trainserver'
-    directory = _subprocess.call('pwd', shell=True)
-    request = {
-        'model_tag': model_tag,
-        'model_name': model_name,
-        'model_type': model_type,
-        'model_path': model_path,
-        # 'model_runtime': model_runtime,
-    }
+#     url = API_URL_BASE + '/build/trainserver'
+#     directory = _subprocess.call('pwd', shell=True)
+#     request = {
+#         'model_tag': model_tag,
+#         'model_name': model_name,
+#         'model_type': model_type,
+#         'model_path': model_path,
+#         # 'model_runtime': model_runtime,
+#     }
 
-    print("Building Dockerfile!\n\n")
-    response = requests.post(url, request).json()
-    build_coordinates = response['build_coordinates']
+#     print("Building Dockerfile!\n\n")
+#     response = requests.post(url, request).json()
+#     build_coordinates = response['build_coordinates']
 
-    gcontext = ssl.SSLContext(ssl.PROTOCOL_TLSv1)  # Only for gangstars
+#     gcontext = ssl.SSLContext(ssl.PROTOCOL_TLSv1)  # Only for gangstars
 
-    fileContent = urlopen(response['dockerFileUrl'], context=gcontext).read().decode('utf-8')
-    basePath = os.path.join(os.path.expanduser(model_path))
-    filePath = os.path.join(basePath, response['dockerFileName'])
+#     fileContent = urlopen(response['dockerFileUrl'], context=gcontext).read().decode('utf-8')
+#     basePath = os.path.join(os.path.expanduser(model_path))
+#     filePath = os.path.join(basePath, response['dockerFileName'])
 
-    f = open(filePath, 'w')
-    f.write(fileContent)
-    f.close()
+#     f = open(filePath, 'w')
+#     f.write(fileContent)
+#     f.close()
 
-    cmd = 'docker build %s -f %s %s' % (build_coordinates, filePath, basePath)
-    process = _subprocess.call(cmd, shell=True)
-    #  if (response['command']):
-    #    print(response['command'])
-    #    process = _subprocess.call(response['command'], shell = True)
-    #  else:
-    #    print("Something went wrong!")
-    # print(response)
+#     cmd = 'docker build %s -f %s %s' % (build_coordinates, filePath, basePath)
+#     process = _subprocess.call(cmd, shell=True)
+#     #  if (response['command']):
+#     #    print(response['command'])
+#     #    process = _subprocess.call(response['command'], shell = True)
+#     #  else:
+#     #    print("Something went wrong!")
+#     # print(response)
 
 
 
@@ -206,26 +206,47 @@ def push(model_name, model_tag):
     process = _subprocess.call(cmd, shell=True)
 
 
+# @model.command()
+# @click.option('--git-url', prompt='Git URL', help='Git URL')
+# @click.option('--model-name', prompt='Model name', help='Model name')
+# @click.option('--model-tag', prompt='Model tag', help='Model tag')
+# def build(git_url, model_name, model_tag):
+#     """Build model and push to registry"""
+#     url = API_URL_BASE + '/model/cbi/build'
+#     request = {
+#         'git_url': git_url,
+#         'model_name': model_name,
+#         'model_tag': model_tag,
+#         # 'model_runtime': model_runtime,
+#     }
+#     response = requests.post(url, request).json()
+
+#     #response1 = response.json()
+#     print(response['message'])
+
+
 @model.command()
+@click.option('--account-id', 'account_id', prompt='Account ID', help='Account ID')
 @click.option('--git-url', prompt='Git URL', help='Git URL')
 @click.option('--model-name', prompt='Model name', help='Model name')
 @click.option('--model-tag', prompt='Model tag', help='Model tag')
-def build(git_url, model_name, model_tag):
-    """Build model and push to registry"""
-    url = API_URL_BASE + '/model/cbi/build'
-    request = {
-        'git_url': git_url,
-        'model_name': model_name,
-        'model_tag': model_tag,
-        # 'model_runtime': model_runtime,
-    }
-    response = requests.post(url, request).json()
+def build(git_url, model_name, model_tag, account_id):
+   """Build model and push to registry"""
+   url = API_URL_BASE + '/model/cbi/build'
+   request = {
+       'git_url': git_url,
+       'model_name': model_name,
+       'model_tag': model_tag,
+       'account_id': account_id,
+       # 'model_runtime': model_runtime,
+   }
+   response = requests.post(url, request).json()
 
-    #response1 = response.json()
-    print(response['message'])
+   #response1 = response.json()
+   print(response['message'])
 
 
-@model.command()
+@model.command('build-logs')
 @click.option('--model-name', prompt='Model name', help='Model name')
 @click.option('--model-tag', prompt='Model tag', help='Model tag')
 def buildlogs(model_name, model_tag):
@@ -239,23 +260,23 @@ def buildlogs(model_name, model_tag):
 
 
 
-@model.command()
-@click.option('--model-name', prompt='Model name', help='Model Name.')
-@click.option('--model-tag', prompt='Model tag', help='Model Tag.')
-def pull(model_name, model_tag):
-    """Fetch model from registry"""
-    url = API_URL_BASE + '/modelpull'
-    request = {
-        'model_name': model_name,
-        'model_tag': model_tag,
-    }
+# @model.command()
+# @click.option('--model-name', prompt='Model name', help='Model Name.')
+# @click.option('--model-tag', prompt='Model tag', help='Model Tag.')
+# def pull(model_name, model_tag):
+#     """Fetch model from registry"""
+#     url = API_URL_BASE + '/modelpull'
+#     request = {
+#         'model_name': model_name,
+#         'model_tag': model_tag,
+#     }
 
-    response = requests.post(url, request).json()
-    pull_coordinates = response['pull_coordinates']
-    cmd = 'docker pull %s' % pull_coordinates
-    print(cmd)
-    print("")
-    process = _subprocess.call(cmd, shell=True)
+#     response = requests.post(url, request).json()
+#     pull_coordinates = response['pull_coordinates']
+#     cmd = 'docker pull %s' % pull_coordinates
+#     print(cmd)
+#     print("")
+#     process = _subprocess.call(cmd, shell=True)
 
 
 # @model.command('deploy')
@@ -303,23 +324,23 @@ def deploy(model_tag, model_name):
 
 
 
-@model.command()
-@click.option('--model-tag', 'model_tag', prompt="Model tag", help='Tag of the model')
-@click.option('--model-name', 'model_name', prompt="Model name", help='Name of the model')
-def traincluster(model_tag, model_name):
-    """Deploy a training job in the cluster"""
+# @model.command()
+# @click.option('--model-tag', 'model_tag', prompt="Model tag", help='Tag of the model')
+# @click.option('--model-name', 'model_name', prompt="Model name", help='Name of the model')
+# def traincluster(model_tag, model_name):
+#     """Deploy a training job in the cluster"""
 
-    url = '{}/build/traincluster'.format(API_URL_BASE)
-    headers = get_header_basic_auth()
+#     url = '{}/build/traincluster'.format(API_URL_BASE)
+#     headers = get_header_basic_auth()
 
-    body = {
-        'model_tag': model_tag,
-        'model_name': model_name,
-    }
+#     body = {
+#         'model_tag': model_tag,
+#         'model_name': model_name,
+#     }
 
-    response = requests.post(url, headers=headers, json=body)
-    response1 = response.json()
-    print(response1['message'])
+#     response = requests.post(url, headers=headers, json=body)
+#     response1 = response.json()
+#     print(response1['message'])
 
 
 @model.command('endpoint')

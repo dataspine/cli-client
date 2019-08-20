@@ -11,7 +11,7 @@ from utils import API_URL_BASE, API_SERVER
 from utils import get_header_basic_auth
 from model import model_endpoint
 from pprint import pprint
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 
 
 @click.group()
@@ -20,36 +20,64 @@ def predict():
     pass
 
 
-@predict.command('route')
-#@click.option('--cluster name', 'cluster', prompt='Cluster name', help='The name of the cluster')
-@click.option('--model name', 'model', prompt='Model name', help='The name of the model')
+# @predict.command('create-route')
+# #@click.option('--cluster name', 'cluster', prompt='Cluster name', help='The name of the cluster')
+# @click.option('--model-name', 'model', prompt='Model name', help='The name of the model')
+# @click.option('--weights', 'model_split_tag_and_weight_dict', prompt='Weights with model tags', help='Provide weights along with model tags i.e. {"a": 100, "b": 0, "c": 0}')
+# @click.option('--shadow-weights', 'model_shadow_tag_list', prompt='Shadow model tags', help='Provide shadow model tags i.e. [b, c] Note: must set b and c to traffic split 0 above')
+# def routetraffic(model, model_split_tag_and_weight_dict, model_shadow_tag_list):
+#     """Route traffic between different versions"""
+
+#     url = API_URL_BASE + '/predict-route'
+#     headers = get_header_basic_auth()
+#     #print(model_split_tag_and_weight_dict)
+#     body = {
+#         'model_split_tag_and_weight_dict': model_split_tag_and_weight_dict,
+#         'model_shadow_tag_list': model_shadow_tag_list,
+#         'model_name': model,
+#     }
+#     try:
+#         response = requests.post(url, headers=headers, json=body).json()
+#         print('Status:' , response['status'])
+#         print('Routes:',  response['new_traffic_split_routes'])
+#         print('Shadow tags:', response['new_traffic_shadow_routes'])
+
+#     except KeyError:
+#         error = 'Something went wrong'
+#         print(error)
+
+@predict.command('create-route')
+@click.option('--account-id', 'account_id', prompt='Account ID', help='Account ID')
+@click.option('--model-name', 'model', prompt='Model name', help='The name of the model')
 @click.option('--weights', 'model_split_tag_and_weight_dict', prompt='Weights with model tags', help='Provide weights along with model tags i.e. {"a": 100, "b": 0, "c": 0}')
-@click.option('--shadow weights', 'model_shadow_tag_list', prompt='Shadow model tags', help='Provide shadow model tags i.e. [b, c] Note: must set b and c to traffic split 0 above')
-def routetraffic(model, model_split_tag_and_weight_dict, model_shadow_tag_list):
-    """Route traffic between different versions"""
+@click.option('--shadow-weights', 'model_shadow_tag_list', prompt='Shadow model tags', help='Provide shadow model tags i.e. [b, c] Note: must set b and c to traffic split 0 above')
+def routetraffic(model, model_split_tag_and_weight_dict, model_shadow_tag_list, account_id):
+   """Route traffic between different versions"""
 
-    url = API_URL_BASE + '/predict-route'
-    headers = get_header_basic_auth()
-    #print(model_split_tag_and_weight_dict)
-    body = {
-        'model_split_tag_and_weight_dict': model_split_tag_and_weight_dict,
-        'model_shadow_tag_list': model_shadow_tag_list,
-        'model_name': model,
-    }
-    try:
-        response = requests.post(url, headers=headers, json=body).json()
-        print('Status:' , response['status'])
-        print('Routes:',  response['new_traffic_split_routes'])
-        print('Shadow tags:', response['new_traffic_shadow_routes'])
+   url = API_URL_BASE + '/predict-route'
+   headers = get_header_basic_auth()
+   #print(model_split_tag_and_weight_dict)
+   body = {
+       'model_split_tag_and_weight_dict': model_split_tag_and_weight_dict,
+       'model_shadow_tag_list': model_shadow_tag_list,
+       'model_name': model,
+       'account_id': account_id,
+   }
+   try:
+       response = requests.post(url, headers=headers, json=body).json()
+       print('Status:' , response['status'])
+       print('Routes:',  response['new_traffic_split_routes'])
+       print('Shadow tags:', response['new_traffic_shadow_routes'])
 
-    except KeyError:
-        error = 'Something went wrong'
-        print(error)
+   except KeyError:
+       error = 'Something went wrong'
+       print(error)
 
 
-@predict.command('deleteroutes')
+
+@predict.command('delete-route')
 #@click.option('--cluster name', 'cluster', prompt='Cluster name', help='The name of the cluster')
-@click.option('--model name', 'model', prompt='Model name', help='The name of the model')
+@click.option('--model-name', 'model', prompt='Model name', help='The name of the model')
 def deletetraffic(model):
     """Delete traffic routes"""
 
@@ -69,21 +97,23 @@ def deletetraffic(model):
 
 
 
-@predict.command('test')
+@predict.command('http-test')
 #@click.option('--cluster name', 'cluster', prompt='Cluster name', help='The name of the cluster')
-@click.option('--model name', 'model', prompt='Model name', help='The name of the model')
-@click.option('--test file', 'test_request_path', prompt='Test request file(json)', help='Path for the test request json file' )
-@click.option('--test concurrency', 'test_request_concurrency', prompt='Request concurrency', help='Provide the concurrency required for requests')
+@click.option('--model-name', 'model', prompt='Model name', help='The name of the model')
+@click.option('--test-file', 'test_request_path', prompt='Test request file (json)', help='Path for the test request json file' )
+@click.option('--test-concurrency', 'test_request_concurrency', prompt='Request concurrency', help='Provide the concurrency required for requests')
 def modeltest_http(test_request_path,
                    model,
                    test_request_concurrency,
                    test_request_mime_type='application/json',
                    test_response_mime_type='application/json',
                    test_request_timeout_seconds=1200):
+    """Pings the model server with a test request"""
 
     from concurrent.futures import ThreadPoolExecutor
     url = '{}/predict-kube-endpoint'.format(API_URL_BASE)
     headers = get_header_basic_auth()
+    account_id = headers["x-account-uuid"]
     body = {
         'model_name': model,
     }
@@ -96,6 +126,7 @@ def modeltest_http(test_request_path,
         for _ in range(test_request_concurrency):
             executor.submit(_predict_http_test(endpoint_url=endpoint_url,
                                                model_name = model,
+                                               account_id = account_id,
                                                test_request_path=test_request_path,
                                                test_request_mime_type=test_request_mime_type,
                                                test_response_mime_type=test_response_mime_type,
@@ -104,6 +135,7 @@ def modeltest_http(test_request_path,
 
 def _predict_http_test(endpoint_url,
                        model_name,
+                       account_id,
                        test_request_path,
                        test_request_mime_type='application/json',
                        test_response_mime_type='application/json',
@@ -122,7 +154,7 @@ def _predict_http_test(endpoint_url,
     with open(test_request_path, 'rb') as fh:
         model_input_binary = fh.read()
 
-    host_header = 'predict-%s.default.svc.cluster.local' % (model_name)
+    host_header = 'predict-%s.%s.svc.cluster.local' % (model_name, account_id)
     headers = {'Content-type': test_request_mime_type,
                'Accept': test_response_mime_type,
                'Host': host_header
