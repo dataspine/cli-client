@@ -92,7 +92,7 @@ def deletetraffic(model):
         print('Status:' , response['message'])
 
     except:
-        error = 'Something went wrong'
+        error = 'Create a new route or routes already exist'
         print(error)
 
 

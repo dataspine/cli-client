@@ -10,7 +10,7 @@ from basicauth import encode
 #import keyring
 import configparser
 from utils import API_URL_BASE, PUBLIC_KEY_PATH, USERDATA_PATH, API_SERVER
-from cluster import cluster
+#from cluster import cluster
 from model import model
 from predict import predict
 #from get import get
@@ -21,7 +21,7 @@ def main():
     pass
 
 
-main.add_command(cluster)
+#main.add_command(cluster)
 main.add_command(model)
 main.add_command(predict)
 #main.add_command(get)
