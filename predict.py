@@ -13,10 +13,14 @@ from model import model_endpoint
 from pprint import pprint
 #import matplotlib.pyplot as plt
 
+# @click.group()
+# def main():
+#     pass
 
 @click.group()
 def predict():
     """The family commands to work with predict"""
+    print("Hello")
     pass
 
 
@@ -54,22 +58,29 @@ def predict():
 def routetraffic(model, model_split_tag_and_weight_dict, model_shadow_tag_list, account_id):
    """Route traffic between different versions"""
 
+   # model_split_tag_and_weight_dict{'v1'} = str(model_split_tag_and_weight_dict{'v1'})
    url = API_URL_BASE + '/predict-route'
    headers = get_header_basic_auth()
-   #print(model_split_tag_and_weight_dict)
+   
+   if '"' not in model_split_tag_and_weight_dict:
+    splt = model_split_tag_and_weight_dict.split(":")
+    splt[0] = splt[0][0] + '"' + splt[0][1:] + '"'
+    model_split_tag_and_weight_dict = ':'.join(splt)
+  
    body = {
        'model_split_tag_and_weight_dict': model_split_tag_and_weight_dict,
        'model_shadow_tag_list': model_shadow_tag_list,
        'model_name': model,
        'account_id': account_id,
    }
+
    try:
        response = requests.post(url, headers=headers, json=body).json()
        print('Status:' , response['status'])
        print('Routes:',  response['new_traffic_split_routes'])
        print('Shadow tags:', response['new_traffic_shadow_routes'])
 
-   except KeyError:
+   except:
        error = 'Something went wrong'
        print(error)
 
@@ -197,3 +208,8 @@ def _predict_http_test(endpoint_url,
     #     return _jsonify(return_dict)
     # else:
     #     return return_dict
+
+cli_commands = click.CommandCollection(sources=[predict])
+
+if __name__ == '__main__':
+    cli_commands()
