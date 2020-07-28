@@ -4,8 +4,8 @@ from pathlib import Path
 HOME = str(Path.home())
 
 # BASE_URL = 'http://localhost'
-BASE_URL_BACKEND = 'http://35.239.205.69'
-BASE_API_SERVER = 'http://35.232.205.144'
+BASE_URL_BACKEND = 'http://35.188.132.86'
+BASE_API_SERVER = 'http://34.71.4.229'
 
 PORT = 80
 # PORT1 = 5000
