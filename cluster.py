@@ -48,14 +48,16 @@ def cluster_init(cluster_name, cluster_namespace=None):
     if cluster_namespace:
         body['cluster_namespace'] = cluster_namespace
 
-    response = requests.put(url, headers=headers, json=body)
-    # import pdb; pdb.set_trace()
-    if response.status_code == 200:
-        response_json = json.loads(response.text)
-        print(response_json.get('message'))
-    else:
-        print('Unable to initialize cluster')
-
+    try:
+        response = requests.put(url, headers=headers, json=body)
+        # import pdb; pdb.set_trace()
+        if response.status_code == 200:
+            response_json = json.loads(response.text)
+            print(response_json.get('message'))
+        else:
+            print('Unable to initialize cluster')
+    except:
+        print("Connection error")
 
 
 @cluster.command()
@@ -77,6 +79,7 @@ def add(config, name, alias, description=""):
 
     response = requests.post(url, headers=headers, json=body_cluster)
     response_json = json.loads(response.text)
+
     if response.status_code != 201:
         print(response_json['message'])
         return
@@ -121,16 +124,20 @@ def encrypt_message(blob, public_key):
     encrypted = ""
     encrypted = bytes(encrypted.encode('utf-8'))
 
-    while not end_loop:
-        chunk = blob[offset:offset + chunk_size]
+    try:
+        while not end_loop:
+            chunk = blob[offset:offset + chunk_size]
 
-        if len(chunk) % chunk_size != 0:
-            end_loop = True
-            chunk += " " * (chunk_size - len(chunk))
+            if len(chunk) % chunk_size != 0:
+                end_loop = True
+                chunk += " " * (chunk_size - len(chunk))
 
-        new_chunk = rsa_key.encrypt(bytes(chunk.encode('utf-8')))
-        encrypted += new_chunk
-        offset += chunk_size
+            new_chunk = rsa_key.encrypt(bytes(chunk.encode('utf-8')))
+            encrypted += new_chunk
+            offset += chunk_size
+    except:
+        print("Encryption error")
+
     return base64.b64encode(encrypted)
 
 
