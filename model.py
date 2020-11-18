@@ -75,16 +75,26 @@ def buildfiles(model_name, model_tag, model_type, model_path):
     """Build model container"""
 
     url = API_URL_BASE + '/buildmodel'
-    #directory = _subprocess.call('pwd', shell=True)
+
+    buildcontext = os.path.join(model_path, model_name)
+
+    model_files = []
+    for filename in os.listdir(buildcontext):
+        with open(os.path.join(buildcontext, filename), 'rb') as f:
+            file_contents = fh.read()
+            model_files += [{
+                'name': filename,
+                'contents': file_contents
+            }]
+
     request = {
         'model_tag': model_tag,
         'model_name': model_name,
         'model_type': model_type,
         'model_path': model_path,
-        # 'model_runtime': model_runtime,
+        'model_files': model_files,
     }
 
-    #print("Building Dockerfile!\n\n")
     try:
         response = requests.post(url, request).json()
         build_coordinates = response['build_coordinates']
