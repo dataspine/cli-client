@@ -99,24 +99,11 @@ def buildfiles(model_name, model_tag, model_type, model_path):
         response = requests.post(url, request).json()
         build_coordinates = response['build_coordinates']
 
-        gcontext = ssl.SSLContext(ssl.PROTOCOL_TLSv1)  # Only for gangstars
-
-        fileContent = urlopen(response['dockerFileUrl'], context=gcontext).read().decode('utf-8')
-        basePath = os.path.join(os.path.expanduser(model_path))
-        filePath = os.path.join(basePath, response['dockerFileName'])
-        Dockerfilepath = os.path.join(basePath, 'Dockerfile')
-
-        f = open(filePath, 'w')
-        f.write(fileContent)
-        f.close()
-
-        f = open(Dockerfilepath, 'w')
-        f.write(fileContent)
-        f.close()
-
-        print ("Model files built and are ready to be pushed to Git")
-    except:
+    except Exception as e:
+        print(e)
         print("Error while building model")
+
+    print("Built predict server with coordinates: \n{0}".format(build_coordinates))
 
 
 # @model.command()
