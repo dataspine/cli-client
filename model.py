@@ -76,16 +76,17 @@ def buildfiles(model_name, model_tag, model_type, model_path):
 
     url = API_URL_BASE + '/buildmodel'
 
-    buildcontext = os.path.join(model_path, model_name)
+    model_build_context = os.path.join(model_path, model_name)
 
     model_files = []
-    for filename in os.listdir(buildcontext):
-        with open(os.path.join(buildcontext, filename), 'rb') as f:
-            file_contents = fh.read()
-            model_files += [{
-                'name': filename,
-                'contents': file_contents
-            }]
+    for root, subdirs, files in os.walk(model_build_context):
+        for filename in files:
+            with open(os.path.join(model_build_context, filename), 'rb') as fh:
+                file_contents = fh.read()
+                model_files += [{
+                    'name': filename,
+                    'contents': file_contents
+                }]
 
     request = {
         'model_tag': model_tag,
