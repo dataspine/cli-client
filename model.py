@@ -78,33 +78,28 @@ def buildfiles(model_name, model_tag, model_type, model_path):
 
     model_build_context = os.path.join(model_path, model_name)
 
-    model_files = []
+    model_files = {}
     for root, subdirs, files in os.walk(model_build_context):
         for filename in files:
-            with open(os.path.join(root, filename), 'rb') as fh:
-                file_contents = fh.read()
-                model_files.append({
-                    'name': filename,
-                    'contents': file_contents
-                })
+            model_files[filename] = open(os.path.join(root, filename), 'rb')
 
     request = {
         'model_tag': model_tag,
         'model_name': model_name,
         'model_type': model_type,
         'model_path': model_path,
-        'model_files': model_files,
     }
 
     try:
-        response = requests.post(url, request).json()
+        response = requests.post(url, request, files=model_files).json()
         build_coordinates = response['build_coordinates']
+        print("Built predict server with coordinates: \n{0}".format(build_coordinates))
 
     except Exception as e:
         print(e)
         print("Error while building model")
 
-    print("Built predict server with coordinates: \n{0}".format(build_coordinates))
+
 
 
 # @model.command()
