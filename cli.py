@@ -53,6 +53,7 @@ def login(username, password, account_uuid):
     string_name = '{}:{}'.format(username, password)
     encoded_str = "Basic " + (base64.b64encode(string_name.encode('utf-8'))).decode('utf-8')
 
+    os.environ['POD_NAMESPACE'] = account_uuid
 
     headers = {
         "authorization": encoded_str,
