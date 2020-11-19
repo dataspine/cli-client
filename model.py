@@ -81,7 +81,8 @@ def buildfiles(model_name, model_tag, model_type, model_path):
     model_files = {}
     for root, subdirs, files in os.walk(model_build_context):
         for filename in files:
-            model_files[filename] = open(os.path.join(root, filename), 'rb')
+            filepath = os.path.join(root, filename)
+            model_files[filepath] = open(filepath, 'rb')
 
     request = {
         'model_tag': model_tag,
