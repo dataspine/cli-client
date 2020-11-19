@@ -92,8 +92,8 @@ def buildfiles(model_name, model_tag, model_type, model_path):
 
     try:
         response = requests.post(url, request, files=model_files).json()
-        build_coordinates = response['build_coordinates']
-        print("Built predict server with coordinates: \n{0}".format(build_coordinates))
+        model_variant = response['model_variant']
+        print(f"Successfully built {model_variant}")
 
     except Exception as e:
         print(e)
