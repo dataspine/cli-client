@@ -207,14 +207,11 @@ def push(model_name, model_tag):
     request = {
         'model_tag': model_tag,
         'model_name': model_name,
-        # 'model_runtime': model_runtime,
     }
+    
     response = requests.post(url, request).json()
     registry_coordinates = response['registry_coordinates']
-    cmd = 'docker push %s' % registry_coordinates
-    print(cmd)
-    print("")
-    process = _subprocess.call(cmd, shell=True)
+    print(f'Successfully pushed to {registry_coordinates}')
 
 
 # @model.command()
