@@ -214,8 +214,7 @@ def push(model_name, model_tag):
     headers = {'x-account-uuid': os.environ['POD_NAMESPACE']}
 
     response = requests.post(url, request, headers=headers).json()
-    registry_coordinates = response['registry_coordinates']
-    print(f'Successfully pushed to {registry_coordinates}')
+    print(f'Successfully pushed {model_name}')
 
 
 # @model.command()
