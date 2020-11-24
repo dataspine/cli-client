@@ -76,6 +76,8 @@ def buildfiles(model_name, model_tag, model_type, model_path):
 
     url = API_URL_BASE + '/buildmodel'
 
+    headers = get_header_basic_auth()
+
     model_build_context = os.path.join(model_path, model_name)
 
     model_files = {}
@@ -92,7 +94,7 @@ def buildfiles(model_name, model_tag, model_type, model_path):
     }
 
     try:
-        response = requests.post(url, request, files=model_files).json()
+        response = requests.post(url, request, files=model_files, headers=headers).json()
         model_variant = response['model_variant']
         print(f"Successfully built {model_variant}")
 

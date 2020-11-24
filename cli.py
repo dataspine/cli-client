@@ -64,7 +64,6 @@ def login(username, password, account_uuid):
     except:
         print("Backend error (json.decoder not found) . Contact the developer")
 
-    print('Logging in')
     response = requests.get(url, headers=headers)
 
     try:
@@ -87,7 +86,6 @@ def login(username, password, account_uuid):
             print('Login Succeeded!')
         # print(keys)
     except Exception as e:
-        print(e)
         print('Invalid credentials!')
 
 
