@@ -76,35 +76,33 @@ def buildfiles(model_name, model_tag, model_type, model_path):
 
     url = API_URL_BASE + '/buildmodel'
 
+    headers = get_header_basic_auth()
+
     model_build_context = os.path.join(model_path, model_name)
 
-    model_files = []
+    model_files = {}
     for root, subdirs, files in os.walk(model_build_context):
         for filename in files:
-            with open(os.path.join(root, filename), 'rb') as fh:
-                file_contents = fh.read()
-                model_files.append({
-                    'name': filename,
-                    'contents': file_contents
-                })
+            filepath = os.path.join(root, filename)
+            model_files[filepath] = open(filepath, 'rb')
 
     request = {
         'model_tag': model_tag,
         'model_name': model_name,
         'model_type': model_type,
         'model_path': model_path,
-        'model_files': model_files,
     }
 
     try:
-        response = requests.post(url, request).json()
-        build_coordinates = response['build_coordinates']
+        response = requests.post(url, request, files=model_files, headers=headers).json()
+        model_variant = response['model_variant']
+        print(f"Successfully built {model_variant}")
 
     except Exception as e:
         print(e)
         print("Error while building model")
 
-    print("Built predict server with coordinates: \n{0}".format(build_coordinates))
+
 
 
 # @model.command()
@@ -211,14 +209,12 @@ def push(model_name, model_tag):
     request = {
         'model_tag': model_tag,
         'model_name': model_name,
-        # 'model_runtime': model_runtime,
     }
-    response = requests.post(url, request).json()
-    registry_coordinates = response['registry_coordinates']
-    cmd = 'docker push %s' % registry_coordinates
-    print(cmd)
-    print("")
-    process = _subprocess.call(cmd, shell=True)
+
+    headers = {'x-account-uuid': os.environ['POD_NAMESPACE']}
+
+    response = requests.post(url, request, headers=headers).json()
+    print(f'Successfully pushed {model_name}')
 
 
 # @model.command()

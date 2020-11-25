@@ -53,7 +53,6 @@ def login(username, password, account_uuid):
     string_name = '{}:{}'.format(username, password)
     encoded_str = "Basic " + (base64.b64encode(string_name.encode('utf-8'))).decode('utf-8')
 
-
     headers = {
         "authorization": encoded_str,
         "x-account-uuid": account_uuid
@@ -64,7 +63,6 @@ def login(username, password, account_uuid):
         JSONDecodeError = ValueError
     except:
         print("Backend error (json.decoder not found) . Contact the developer")
-
 
     response = requests.get(url, headers=headers)
 
@@ -87,7 +85,7 @@ def login(username, password, account_uuid):
             #keyring.set_password(service_name=account_uuid, username=username, password=password)
             print('Login Succeeded!')
         # print(keys)
-    except:
+    except Exception as e:
         print('Invalid credentials!')
 
 
