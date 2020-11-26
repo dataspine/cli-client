@@ -93,6 +93,8 @@ def buildfiles(model_name, model_tag, model_type, model_path):
         'model_path': model_path,
     }
 
+    print(f"Building predict-{model_name}:{model_tag}...")
+
     try:
         response = requests.post(url, request, files=model_files, headers=headers).json()
         model_variant = response['model_variant']
