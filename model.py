@@ -93,6 +93,8 @@ def buildfiles(model_name, model_tag, model_type, model_path):
         'model_path': model_path,
     }
 
+    print(f"Building {model_variant}...")
+
     try:
         response = requests.post(url, request, files=model_files, headers=headers).json()
         model_variant = response['model_variant']
@@ -213,6 +215,8 @@ def push(model_name, model_tag):
 
     headers = {'x-account-uuid': os.environ['POD_NAMESPACE']}
 
+    print(f"Building predict-{model_name}:{model_tag}...")
+
     response = requests.post(url, request, headers=headers).json()
     print(f'Successfully pushed {model_name}')
 
@@ -313,8 +317,8 @@ def buildlogs(model_name, model_tag):
 @model.command()
 #@click.option('--cluster-name', 'cluster_name', prompt='Cluster name', help='The name of the cluster')
 #@click.option('--namespace', 'cluster_namespace', prompt='Cluster namespace', help='The namespace in the cluster')
-@click.option('--model-tag', 'model_tag', prompt="Model tag", help='Tag of the model')
 @click.option('--model-name', 'model_name', prompt="Model name", help='Name of the model')
+@click.option('--model-tag', 'model_tag', prompt="Model tag", help='Tag of the model')
 def deploy(model_tag, model_name):
     """Deploy a model in the cluster"""
 
