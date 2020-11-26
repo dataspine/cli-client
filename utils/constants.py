@@ -4,8 +4,8 @@ from pathlib import Path
 HOME = str(Path.home())
 
 # BASE_URL = 'http://localhost'
-BASE_URL_BACKEND = 'http://130.211.114.2'
-BASE_API_SERVER = 'http://34.122.87.173'
+BASE_URL_BACKEND = 'https://auth.dataspine.io'
+BASE_API_SERVER = 'https://api.dataspine.io'
 
 PORT = 80
 # PORT1 = 5000
