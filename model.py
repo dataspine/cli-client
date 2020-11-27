@@ -215,7 +215,7 @@ def push(model_name, model_tag):
 
     headers = {'x-account-uuid': os.environ['POD_NAMESPACE']}
 
-    print(f"Building predict-{model_name}:{model_tag}...")
+    print(f"Pushing predict-{model_name}:{model_tag}...")
 
     response = requests.post(url, request, headers=headers).json()
     print(f'Successfully pushed {model_name}')
