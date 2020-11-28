@@ -78,10 +78,10 @@ def buildfiles(model_name, model_tag, model_type, model_path):
 
     headers = get_header_basic_auth()
 
-    model_build_context = os.path.join(model_path, model_name)
+    os.chdir(model_path)
 
     model_files = {}
-    for root, subdirs, files in os.walk(model_build_context):
+    for root, subdirs, files in os.walk(model_name):
         for filename in files:
             filepath = os.path.join(root, filename)
             model_files[filepath] = open(filepath, 'rb')
