@@ -21,6 +21,7 @@ def model():
     """The family commands to work with model"""
     pass
 
+
 @model.command()
 @click.option('--model-name', 'model_name', prompt="Model name", help='Name of the model')
 @click.option('--model-tag', 'model_tag', prompt="Model tag", help='Tag of the model')
@@ -294,47 +295,57 @@ def buildlogs(model_name, model_tag):
 #     process = _subprocess.call(cmd, shell=True)
 
 
-# @model.command('deploy')
-# @click.option('--cluster-name', prompt='Cluster name', help='Cluster name.')
-# def deploy(cluster_name):
-#     """Deploy the model in your cluster"""
-#     url = API_URL_BASE + "/deploy-model"
-#     headers = get_header_basic_auth()
-#     body_cluster = {
-#         "cluster_name": cluster_name
-#     }
-
-#     updated = requests.post(url, headers=headers, json=body_cluster)
-#     # updated_json = json.loads(updated.text)
-#     if updated.status_code != 200:
-#         # print(updated_json['message'])
-#         print(updated)
-#         return
-
-#     print("Model it's already deploy")
-
-
-@model.command()
-#@click.option('--cluster-name', 'cluster_name', prompt='Cluster name', help='The name of the cluster')
-#@click.option('--namespace', 'cluster_namespace', prompt='Cluster namespace', help='The namespace in the cluster')
+@model.command('deploy-pod')
 @click.option('--model-name', 'model_name', prompt="Model name", help='Name of the model')
 @click.option('--model-tag', 'model_tag', prompt="Model tag", help='Tag of the model')
-def deploy(model_tag, model_name):
+def deploy_pod(model_tag, model_name):
     """Deploy a model in the cluster"""
 
-    url = '{}/model/deploy'.format(API_URL_BASE)
+    url = '{}/model/deploy_pod'.format(API_URL_BASE)
     headers = get_header_basic_auth()
 
     body = {
         'model_tag': model_tag,
         'model_name': model_name,
-        # 'cluster_name': cluster_name,
-        # 'cluster_namespace': cluster_namespace
     }
 
     response = requests.post(url, headers=headers, json=body)
     response1 = response.json()
     print(response1['message'])
+
+
+@model.command()
+@click.option('--model-name', prompt='Model name', help='Model Name.')
+@click.option('--model-tag', prompt='Model tag', help='Model Tag.')
+@click.option('--model-type', prompt='Model type', help='Model Type.')
+@click.option('--model-path', prompt='Model path', help='Model Path.')
+def deploy(model_tag, model_name, model_type, model_path):
+    """Deploy a model in the cluster"""
+
+    url = '{}/model/deploy'.format(API_URL_BASE)
+    headers = get_header_basic_auth()
+
+    os.chdir(model_path)
+
+    model_files = {}
+    for root, subdirs, files in os.walk(model_name):
+        for filename in files:
+            filepath = os.path.join(root, filename)
+            model_files[filepath] = open(filepath, 'rb')
+
+    request = {
+        'model_tag': model_tag,
+        'model_name': model_name,
+        'model_type': model_type,
+        'model_path': model_path,
+    }
+
+    print(f"Building predict-{model_name}:{model_tag} ... this may take a minute")
+
+    response = requests.post(url, request, files=model_files, headers=headers).json()
+    print(response['message'])
+
+
 
 
 
