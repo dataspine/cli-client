@@ -342,8 +342,15 @@ def deploy(model_tag, model_name, model_type, model_path):
 
     print(f"Building predict-{model_name}:{model_tag} ... this may take a minute")
 
-    response = requests.post(url, request, files=model_files, headers=headers).json()
-    print(response['message'])
+    response = requests.post(url, request, files=model_files, headers=headers)
+
+    if response.status_code==504:
+        print("You model is building, and will take roughly 15 minutes.\n " \
+              "It will be listed on the Deployments screen when it is ready.")
+    elif response.status_code!=200:
+        print("Model deployment did not complete. Please check pod logs for more information")
+    else:
+        print(response['message'])
 
 
 
