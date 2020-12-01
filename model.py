@@ -350,7 +350,7 @@ def deploy(model_tag, model_name, model_type, model_path):
     elif response.status_code!=200:
         print("Model deployment did not complete. Please check pod logs for more information")
     else:
-        print(response.json['message'])
+        print(response['message'])
 
 
 
