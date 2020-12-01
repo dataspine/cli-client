@@ -351,8 +351,10 @@ def deploy(model_tag, model_name, model_type, model_path):
         print("Model deployment did not complete. Please check pod logs for more information")
     else:
         response = response.json()
-        print(response['message'])
-
+        model_variant = response['model_variant']
+        print(f"\n\nSuccessfully deployed {model_variant} your cluster. It will now be visible on the Deployments screen.\n\n" \
+           f"You can now define traffic rules with this command:\n" \
+           f"    spinectl predict create-route"
 
 
 
