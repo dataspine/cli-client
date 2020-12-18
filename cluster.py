@@ -4,7 +4,7 @@ import click
 import os
 import requests
 from utils import get_header_basic_auth
-from utils import API_URL_BASE, PUBLIC_KEY_PATH, KUBE_CONFIG_PATH, API_SERVER
+from utils import API_URL_BASE, PUBLIC_KEY_PATH, KUBE_CONFIG_PATH
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_OAEP
 
