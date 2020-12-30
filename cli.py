@@ -9,7 +9,7 @@ import os.path
 from basicauth import encode
 #import keyring
 import configparser
-from utils import API_URL_BASE, PUBLIC_KEY_PATH, USERDATA_PATH, API_SERVER
+from utils import API_URL_BASE, PUBLIC_KEY_PATH, USERDATA_PATH
 #from cluster import cluster
 from model import model
 from predict import predict
