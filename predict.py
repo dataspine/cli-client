@@ -7,7 +7,7 @@ import requests
 import subprocess as _subprocess
 from urllib.request import urlopen
 import os.path
-from utils import API_URL_BASE, API_SERVER
+from utils import API_URL_BASE
 from utils import get_header_basic_auth
 from model import model_endpoint
 from pprint import pprint
