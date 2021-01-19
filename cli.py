@@ -29,7 +29,6 @@ main.add_command(predict)
 
 # data = {}
 # decoded_data = {}
-
 # secret = 'bw$u55&le#a=mm_zths96b!i@0=z7)#c9#k)4!j(q1f9+8^8y0'
 # current_time = calendar.timegm(time.gmtime())
 #
