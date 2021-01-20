@@ -45,7 +45,6 @@ main.add_command(predict)
 @main.command()
 @click.option('--username', prompt='Username', help='User Name.')
 @click.option('--password', prompt='Password', help='User Password.', hide_input=True)
-@click.option('--account-uuid', prompt='Account UUID', help='User Account UUID.', hide_input=False)
 def login(username, password, account_uuid):
     """Authentication for Dataspine"""
     url = API_URL_BASE+"/login"
@@ -53,8 +52,7 @@ def login(username, password, account_uuid):
     encoded_str = "Basic " + (base64.b64encode(string_name.encode('utf-8'))).decode('utf-8')
 
     headers = {
-        "authorization": encoded_str,
-        "x-account-uuid": account_uuid
+        "authorization": encoded_str
     }
     try:
         from json.decoder import JSONDecodeError
@@ -70,7 +68,7 @@ def login(username, password, account_uuid):
         user_data = keys["user"]
         config = configparser.ConfigParser()
         config['default'] = {'First Name': user_data["user_name"], 'Second Name': user_data["user_lastname"], 'Email': user_data["user_email"], 'Role': user_data["user_role"],
-              'username': username, 'account-uuid': account_uuid, 'token': keys["token"], 'password':password}
+              'username': username, 'token': keys["token"], 'password': password}
 
         if response.status_code == 200:
             os.makedirs(os.path.dirname(PUBLIC_KEY_PATH), exist_ok=True)
@@ -98,18 +96,6 @@ def help():
     # if (valid_token() == True):
     #     url = URL + '/help'
     #     response = requests.gore_filter
-
-
-@main.command()
-@click.option('--account-uuid', prompt='Account UUID', help='User Account UUID.', hide_input=False)
-def init(account_uuid):
-   """Init command on main group"""
-   url = API_URL_BASE + '/init'
-   headers = {
-       "x-account-uuid": account_uuid
-   }
-   response = requests.get(url, headers=headers).json()
-   print (response)
 
 
 @main.command()
