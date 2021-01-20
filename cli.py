@@ -45,7 +45,7 @@ main.add_command(predict)
 @main.command()
 @click.option('--username', prompt='Username', help='User Name.')
 @click.option('--password', prompt='Password', help='User Password.', hide_input=True)
-def login(username, password, account_uuid):
+def login(username, password):
     """Authentication for Dataspine"""
     url = API_URL_BASE+"/login"
     string_name = '{}:{}'.format(username, password)
