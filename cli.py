@@ -46,7 +46,7 @@ main.add_command(predict)
 @main.command()
 @click.option('--username', prompt='Username', help='User Name.')
 @click.option('--password', prompt='Password', help='User Password.', hide_input=True)
-@click.option('--account-uuid', prompt=False, help='User Account UUID.', hide_input=False)
+@click.option('--account-uuid', prompt='Account UUID', help='User Account UUID.', hide_input=False)
 def login(username, password, account_uuid=os.environ['POD_NAMESPACE']):
     """Authentication for Dataspine"""
     url = API_URL_BASE+"/login"
@@ -54,8 +54,7 @@ def login(username, password, account_uuid=os.environ['POD_NAMESPACE']):
     encoded_str = "Basic " + (base64.b64encode(string_name.encode('utf-8'))).decode('utf-8')
 
     headers = {
-        "authorization": encoded_str,
-        "x-account-uuid": account_uuid
+        "authorization": encoded_str
     }
     try:
         from json.decoder import JSONDecodeError
