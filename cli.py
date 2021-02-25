@@ -46,7 +46,6 @@ main.add_command(predict)
 @main.command()
 @click.option('--username', prompt='Username', help='User Name.')
 @click.option('--password', prompt='Password', help='User Password.', hide_input=True)
-@click.option('--account-uuid', prompt=False, help='User Account UUID.', hide_input=False)
 def login(username, password, account_uuid=os.environ['POD_NAMESPACE']):
     """Authentication for Dataspine"""
     url = API_URL_BASE+"/login"
@@ -101,8 +100,6 @@ def help():
     #     response = requests.gore_filter
 
 
-@main.command()
-@click.option('--account-uuid', prompt=False, help='User Account UUID.', hide_input=False)
 def init(account_uuid):
    """Init command on main group"""
    url = API_URL_BASE + '/init'
