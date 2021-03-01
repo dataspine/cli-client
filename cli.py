@@ -101,6 +101,17 @@ def help():
 
 
 @main.command()
+def init(account_uuid):
+   """Init command on main group"""
+   url = API_URL_BASE + '/init'
+   headers = {
+       "x-account-uuid": account_uuid
+   }
+   response = requests.get(url, headers=headers).json()
+   print (response)
+
+
+@main.command()
 def version():
     """Version command on main group"""
     url = API_URL_BASE + '/version'
