@@ -36,6 +36,6 @@ s3transfer==0.1.13
 shelljob==0.5.6
 six==1.11.0
 tabulate==0.8.2
-urllib3==1.23
+urllib3==1.26.5
 websocket-client==0.48.0
 Werkzeug==0.14.1
